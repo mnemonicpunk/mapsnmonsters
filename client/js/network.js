@@ -1,5 +1,5 @@
 //const SERVER_URL = "ws:localhost:8000/data";
-const SERVER_URL = "ws://mapsandmonsters.herokuapp.com/data";
+const SERVER_URL = "wss://mapsandmonsters.herokuapp.com/data";
 
 class Network {
     constructor(tabletop) {
