@@ -2,9 +2,20 @@ class TableTop {
     constructor() {
         let _Instance = this;
 
+        // gamemodes
+        // -1 = spectator
+        // 0 = DM
+        // 1 = player
+        this.gamemode = -1;
+
+        // data used to auth with the server
+        this.player_name = "";
+        this.player_token = "";
+
+        this.network = new Network(this);
         this.canvas = document.getElementById('game_canvas');
         this.ctx = this.canvas.getContext('2d');
-        this.board = new GameBoard();
+        this.board = new GameBoard(this);
         this.sideboard = new SideBoard();
         this.cam = {
             x: (MAP_WIDTH*SUBTILE_WIDTH*4)/2,
@@ -44,7 +55,7 @@ class TableTop {
             e.preventDefault();
         });
 
-        this.board.setupMap(SAMPLE_MAP);
+        this.board.setupMap(EMPTY_MAP);
         for (let i=0; i<SAMPLE_PIECES.length; i++) {
             this.board.addPiece(new GamePiece(SAMPLE_PIECES[i].name, SAMPLE_PIECES[i].icon));
         }
@@ -109,5 +120,17 @@ class TableTop {
     scrollView(x, y) {
         this.cam.x += x;
         this.cam.y += y;
+    }
+    setCredentials(cred) {
+        localStorage.player_name = cred.name;
+        localStorage.player_token = cred.id;
+
+        this.player_name = cred.name;
+        this.player_token = cred.id;
+
+        console.dir(cred);
+    }
+    sendReveal(x, y, state) {
+        this.network.sendReveal(x, y, state);
     }
 }

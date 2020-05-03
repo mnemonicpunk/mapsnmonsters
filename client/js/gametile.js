@@ -4,6 +4,9 @@ class GameTile {
         this.visible = false;
     }
     draw(ctx, x, y) {
+        if (this.type < -1) {
+            this.type = -1;
+        }
         if ((this.type == -1) || (this.visible == false)) { 
             let tile_img = document.getElementById('tile_03');
 

@@ -1,7 +1,8 @@
 class GameBoard {
-    constructor() {
+    constructor(tabletop) {
         this.cache = document.createElement('canvas');
 
+        this.tabletop = tabletop;
         this.tiles = [];
         this.pieces = [];
 
@@ -67,6 +68,13 @@ class GameBoard {
 
         this.drawMap();
     }
+    setMapState(map_data) {
+        for (let i=0; i<map_data.length; i++) {
+            this.tiles[i].type = map_data[i].type-1;
+            this.tiles[i].visible = map_data[i].visible;
+        }
+        this.drawMap();
+    }
     mouseMove(x, y) {
         this.hovered_position = {
             x: Math.floor(x/SUBTILE_WIDTH),
@@ -82,10 +90,12 @@ class GameBoard {
             //t.visible = !t.visible;
 
             if (button == 0) {
-                t.visible = true;
+                //t.visible = true;
+                this.tabletop.sendReveal(hp.x, hp.y, true);
             }
             if (button == 2) {
-                t.visible = false;
+                //t.visible = false;
+                this.tabletop.sendReveal(hp.x, hp.y, false);
             }
 
             this.drawMap();
