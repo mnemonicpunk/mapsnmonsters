@@ -79,7 +79,15 @@ class GameBoard {
         if (this.user_mode == 0) {
             let hp = this.getHoveredTile();
             let t = this.getTile(hp.x, hp.y);
-            t.visible = !t.visible;
+            //t.visible = !t.visible;
+
+            if (button == 0) {
+                t.visible = true;
+            }
+            if (button == 2) {
+                t.visible = false;
+            }
+
             this.drawMap();
         }
         if (this.user_mode == 1) {

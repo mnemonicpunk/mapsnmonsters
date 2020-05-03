@@ -14,7 +14,6 @@ class GamePiece {
         this.on_board = false;
     }
     place(x, y) {
-        console.log("Placing");
         this.x = x;
         this.y = y;
 
