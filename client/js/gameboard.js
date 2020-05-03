@@ -69,6 +69,7 @@ class GameBoard {
         this.drawMap();
     }
     setMapState(map_data) {
+        console.dir(map_data);
         for (let i=0; i<map_data.length; i++) {
             this.tiles[i].type = map_data[i].type-1;
             this.tiles[i].visible = map_data[i].visible;

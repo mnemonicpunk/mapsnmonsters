@@ -36,7 +36,7 @@ class Network {
                 this.tabletop.board.setMapState(msg.data);
                 break;
             case "piece_data":
-                this.tabletop.board.setMapState(msg.data);
+                this.tabletop.board.setPieceState(msg.data);
                 break;    
             default:
                 console.log("Unknown message type " + msg.type);
