@@ -1,4 +1,5 @@
-const SERVER_URL = "ws:localhost:8000/data";
+//const SERVER_URL = "ws:localhost:8000/data";
+const SERVER_URL = "ws://mapsandmonsters.herokuapp.com/data";
 
 class Network {
     constructor(tabletop) {
@@ -35,7 +36,7 @@ class Network {
                 this.tabletop.board.setMapState(msg.data);
                 break;
             case "piece_data":
-                this.tabletop.board.setPieceState(msg.data);
+                this.tabletop.board.setMapState(msg.data);
                 break;    
             default:
                 console.log("Unknown message type " + msg.type);
