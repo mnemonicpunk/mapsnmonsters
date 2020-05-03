@@ -7,6 +7,7 @@ class TTUser  {
         console.log("User connected.");
         this.server = server;
         this.sock = ws;
+        this.connected = true;
         
         // mode -1 = spectator
         // mode 0 = DM
@@ -17,13 +18,23 @@ class TTUser  {
         this.sock.on('message', function(msg) {
             _Instance.handleMessage(msg);
         });
+        this.sock.on('error', function(msg) {
+            _Instance.connected = false;
+        });
+        this.sock.on('close', function(msg) {
+            _Instance.connected = false;
+        });        
     }
     sendMessage(type, data) {
-        let json = JSON.stringify({
-            type: type,
-            data: data
-        });
-        this.sock.send(json);
+        try {
+            let json = JSON.stringify({
+                type: type,
+                data: data
+            });
+            this.sock.send(json);    
+        } catch(e) {
+            this.connected = false;
+        }
     }
     handleMessage(json) {
         let msg = JSON.parse(json);
@@ -38,6 +49,14 @@ class TTUser  {
                 this.getRoom().reveal(msg.data.x, msg.data.y, msg.data.state);
                 this.server.updateDirty();
                 break;
+            case "place_piece":
+                this.getRoom().placePiece(msg.data.x, msg.data.y, msg.data.num);
+                this.server.updateDirty();
+                break;
+            case "remove_piece":
+                this.getRoom().removePiece(msg.data.num);
+                this.server.updateDirty();
+                break;                
             default:
                 console.log("User sent unknown message type: " + msg.type);
                 break;
@@ -75,6 +94,7 @@ class TTUser  {
         this.mode = 0;
 
         this.server.sendMapToUsers(this.getRoom().map);
+        this.server.sendPieceDataToUsers(this.getRoom().pieces);
     }
     getRoom() {
         return this.server.room;

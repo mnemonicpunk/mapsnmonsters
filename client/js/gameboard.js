@@ -75,6 +75,15 @@ class GameBoard {
         }
         this.drawMap();
     }
+    setPieceState(piece_data) {
+        for (let i=0; i<this.pieces.length; i++) {
+            if (piece_data[i].on_board == true) {
+                this.pieces[i].place(piece_data[i].x, piece_data[i].y);
+            } else {
+                this.pieces[i].remove();
+            }
+        }
+    }
     mouseMove(x, y) {
         this.hovered_position = {
             x: Math.floor(x/SUBTILE_WIDTH),
@@ -85,30 +94,32 @@ class GameBoard {
     mouseClick(button, x, y) {
         this.mouseMove(x, y);
         if (this.user_mode == 0) {
-            let hp = this.getHoveredTile();
-            let t = this.getTile(hp.x, hp.y);
+            let ht = this.getHoveredTile();
+            let t = this.getTile(ht.x, ht.y);
             //t.visible = !t.visible;
 
             if (button == 0) {
                 //t.visible = true;
-                this.tabletop.sendReveal(hp.x, hp.y, true);
+                this.tabletop.sendReveal(ht.x, ht.y, true);
             }
             if (button == 2) {
                 //t.visible = false;
-                this.tabletop.sendReveal(hp.x, hp.y, false);
+                this.tabletop.sendReveal(ht.x, ht.y, false);
             }
 
             this.drawMap();
         }
         if (this.user_mode == 1) {
-            let ht = this.getHoveredPosition();
+            let hp = this.getHoveredPosition();
             let p = this.pieces[this.selected_piece];
             
             if (button == 0) {
-                p.place(ht.x, ht.y);
+                //p.place(ht.x, ht.y);
+                this.tabletop.sendPlacePiece(hp.x, hp.y, this.selected_piece);
             }
             if (button == 2) {
-                p.remove();
+                //p.remove();
+                this.tabletop.sendRemovePiece(this.selected_piece);
             }            
         }
     }

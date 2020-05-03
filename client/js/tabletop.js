@@ -133,4 +133,10 @@ class TableTop {
     sendReveal(x, y, state) {
         this.network.sendReveal(x, y, state);
     }
+    sendPlacePiece(x, y, num) {
+        this.network.sendPlacePiece(x, y, num);
+    }
+    sendRemovePiece(num) {
+        this.network.sendRemovePiece(num);
+    }    
 }

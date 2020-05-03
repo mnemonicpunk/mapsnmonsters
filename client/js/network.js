@@ -34,6 +34,9 @@ class Network {
             case "map_data":
                 this.tabletop.board.setMapState(msg.data);
                 break;
+            case "piece_data":
+                this.tabletop.board.setPieceState(msg.data);
+                break;    
             default:
                 console.log("Unknown message type " + msg.type);
                 break;
@@ -55,4 +58,16 @@ class Network {
             state: state
         });
     }
+    sendPlacePiece(x, y, num) {
+        this.sendMessage('place_piece', {
+            x: x,
+            y: y,
+            num: num
+        });
+    }    
+    sendRemovePiece(num) {
+        this.sendMessage('remove_piece', {
+            num: num
+        });
+    }        
 }

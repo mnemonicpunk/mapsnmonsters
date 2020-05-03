@@ -56,11 +56,40 @@ class TTServer {
         let json = map.getJSON();
         this.sendMessageToUsers('map_data', json);
     }
+    sendPieceDataToUsers(pieces) {
+        let json = [];
+        for (let i=0; i<pieces.length; i++) {
+            json.push({
+                x: pieces[i].x,
+                y: pieces[i].y,
+                on_board: pieces[i].on_board
+            });
+        }
+        this.sendMessageToUsers('piece_data', json);
+    }
+    pruneUsers() {
+        let is_clean = false;
+        while(!is_clean) {
+            is_clean = true;
+            for (let i=0; i<this.users.length; i++) {
+                if (this.users[i].connected == false) {
+                    this.users.splice(i);
+                    is_clean = false;
+                    break;
+                }
+            }
+        }
+    }
     updateDirty() {
+        this.pruneUsers();
         if (this.room.map.is_dirty) {
             this.sendMapToUsers(this.room.map);
             this.room.map.is_dirty = false;
         }
+        if (this.room.pieces_dirty) {
+            this.sendPieceDataToUsers(this.room.pieces);
+            this.room.pieces_dirty = false;
+        }        
     }
 }
 
