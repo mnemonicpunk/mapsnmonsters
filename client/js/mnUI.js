@@ -2,7 +2,9 @@ const UICOL = {
     panel: "#222",
     hovered_panel: "#333",
     active_item: "#555",
-    text: "#aaa"
+    text: "#aaa",
+    button: "#333",
+    hovered_button: "#444",
 };
 
 class mnWidget {
@@ -56,13 +58,15 @@ class mnWidget {
     }
     _onClick(x, y, button) {
         if (!this.active) { return; }
+        this.withChildren(function(parent, self) {
+            self._onClick(x - parent.x, y - parent.y, button);
+        });                    
         if (this.isUnderMouse(x, y)) {
             this.onClick(button);
-            this.withChildren(function(parent, self) {
-                self._onClick(x - parent.x, y - parent.y, button);
-            });            
             return true;
         }
+        
+
         return false;
     }
     mouseMove(x, y) {
@@ -151,14 +155,23 @@ class wTokenPanel extends mnWidget {
 
         this.selected = 0;
         this.select_callback = null;
+        this.context_callback = null;
     }
     addToken(name, icon) {
         var _Instance = this;
         var index = this.children.length;
 
         let t = new wTokenItem(0, this.children.length*68, this.width, 68, name, icon);
-        t.click_callback = function() {
-            _Instance.select(index);
+        t.click_callback = function(button) {
+            if (button == 0) {
+                _Instance.select(index);
+            }
+            if (button == 2) {
+                if (_Instance.context_callback != null) {
+                    _Instance.context_callback(index);
+                }
+            }
+            
         }
         this.children.push(t);
         this.height = this.children.length*68;
@@ -181,13 +194,10 @@ class wTokenPanel extends mnWidget {
     }
 }
 
-class wTokenItem extends mnWidget {
-    constructor(x, y, width, height, name, icon) {
+class wButton extends mnWidget {
+    constructor(x, y, width, height, name) {
         super(x, y, width, height);
         this.name = name;
-        this.icon = icon;
-        this.img = document.createElement('img');
-        this.img.src = "./graphics/piece/" + icon + ".png";
         this.click_callback = null;
 
         this.hovered = false;
@@ -206,6 +216,28 @@ class wTokenItem extends mnWidget {
         }
     }
     draw(ctx) {
+        ctx.fillStyle = UICOL.button;
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+
+        if (this.hovered) {
+            ctx.fillStyle = UICOL.hovered_button;
+            ctx.fillRect(this.x, this.y, this.width, this.height);
+        }      
+
+        ctx.fillStyle = UICOL.text;
+        let size = ctx.measureText(this.name);
+        ctx.fillText(this.name, this.x + this.width/2 - size.width/2, this.y + this.height*0.55);
+    }    
+}
+
+class wTokenItem extends wButton {
+    constructor(x, y, width, height, name, icon) {
+        super(x, y, width, height, name);
+        this.icon = icon;
+        this.img = document.createElement('img');
+        this.img.src = "./graphics/piece/" + icon + ".png";
+    }
+    draw(ctx) {
         if (this.hovered) {
             ctx.fillStyle = UICOL.hovered_panel;
             ctx.fillRect(this.x, this.y, this.width, this.height);
@@ -221,5 +253,107 @@ class wTokenItem extends mnWidget {
     }
 }
 
+class wEditPiece extends mnWidget {
+    constructor(x, y, width, height) {
+        super(x, y, width, height);
+        this.icon_selector = new wIconSelector(10, 10, this.width - 20, 40);
+        this.children.push(this.icon_selector);
+        this.piece = null;
 
+        /*
+        this.claim_button = new wButton(20, this.height-60, 170, 40, "Beanspruchen");
+        this.children.push(this.claim_button);
+        */
+
+        this.confirm_button = new wButton(this.width-190, this.height-60, 170, 40, "Okay");
+        this.children.push(this.confirm_button);
+    }
+    beginEdit(piece) {
+        this.active = true;
+        this.piece = piece;
+        console.dir(piece);
+        this.icon_selector.populate(piece.type);
+    }
+    draw(ctx) {
+        ctx.fillStyle = UICOL.panel;
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+    }
+}
+
+class wIconSelector extends mnWidget {
+    constructor(x, y, width, height, sheet) {
+        super(x, y, width, height);
+        this.selected_icon = -1;
+        
+    }
+    populate(type) {
+        this.children = [];
+        if (type == "hero") {
+            this.sheet = document.getElementById('icon_hero');        
+            for (let i=0; i<27; i++) {
+                let icon = new wIcon((i%8)*48, Math.floor(i/8)*48, 48, 48, this.sheet, i, 48);
+                this.children.push(icon);
+    
+                var _Instance = this;
+                icon.click_callback = function(num) {
+                    _Instance.select(num);
+                }
+            }    
+        }
+        if (type == "enemy") {
+            this.sheet = document.getElementById('icon_enemy');        
+            for (let i=0; i<25; i++) {
+                let icon = new wIcon((i%8)*48, Math.floor(i/8)*48, 48, 48, this.sheet, i, 70);
+                this.children.push(icon);
+    
+                var _Instance = this;
+                icon.click_callback = function(num) {
+                    _Instance.select(num);
+                }
+            }    
+        }        
+    }
+    draw(ctx) {
+        /*ctx.fillStyle = "#fff";
+        ctx.fillRect(this.x, this.y, this.width, this.height);*/
+    }
+    select(num) {
+        console.log(num);
+        this.selected_icon = num;
+        for (let i=0; i<this.children.length; i++) {
+            this.children[i].selected = (i==num);
+        }
+    }
+}
+
+class wIcon extends mnWidget {
+    constructor(x, y, width, height, sheet, num, source_size) {
+        super(x, y, width, height);
+        this.sheet = sheet;
+        this.num = num;
+        this.selected = false;
+        this.click_callback = null;
+        this.size = source_size;
+    }
+    draw(ctx) {
+        let num = this.num;
+        let source_size = this.size;
+        let num_x = Math.ceil(this.sheet.width/(source_size*2));
+        let num_y = Math.ceil(this.sheet.height/(source_size*2));
+
+        let ix = num%num_x;
+        let iy = Math.floor(num/num_x);
+
+        ctx.drawImage(this.sheet, ix*(source_size*2), iy*(source_size*2), source_size, source_size, this.x, this.y, this.width, this.height);
+        if (this.selected) {
+            ctx.strokeStyle = "#fff";
+            ctx.strokeRect(this.x, this.y, source_size-2, source_size-2);
+        }
+    }
+    onClick() {
+        if (this.click_callback != null) {
+            this.click_callback(this.num);
+        }
+    }
+}
 

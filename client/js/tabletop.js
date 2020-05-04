@@ -5,7 +5,7 @@ class TableTop {
         this.ui_mode = 0;
 
         // data used to auth with the server
-        this.player_name = "";
+        this.player_name = this.getPlayerName();
         this.player_token = "";
 
         this.network = new Network(this);
@@ -50,6 +50,9 @@ class TableTop {
             _Instance.panel_enemy.select(-1);
             _Instance.panel_token.select(-1);
         }
+        this.panel_hero.context_callback = function(num) {
+            _Instance.edit_piece_window.beginEdit(_Instance.board.getPieceByType("hero", num));
+        }
 
         this.panel_enemy = new wTokenPanel(this.width - 420, 40, 400, 400);
         this.panel_enemy.active = false;
@@ -57,6 +60,9 @@ class TableTop {
             _Instance.board.selectPieceByType("enemy", num);
             _Instance.panel_hero.select(-1);
             _Instance.panel_token.select(-1);
+        }
+        this.panel_enemy.context_callback = function(num) {
+            _Instance.edit_piece_window.beginEdit(_Instance.board.getPieceByType("enemy", num));
         }
 
         this.panel_token = new wTokenPanel(this.width - 420, 40, 400, 400);
@@ -66,6 +72,9 @@ class TableTop {
             _Instance.panel_hero.select(-1);
             _Instance.panel_enemy.select(-1);
         }
+
+        this.edit_piece_window = new wEditPiece(0, 0, 400, 400);
+        this.edit_piece_window.active = false;
 
         let _draw = function() {
             _Instance.draw();
@@ -130,6 +139,8 @@ class TableTop {
         this.panel_hero._draw(this.ctx, 0, 0);
         this.panel_enemy._draw(this.ctx, 0, 0);
         this.panel_token._draw(this.ctx, 0, 0);
+
+        this.edit_piece_window._draw(this.ctx, 0, 0);
     }
     setUIMode(num) {
         this.ui_mode = num;
@@ -167,6 +178,8 @@ class TableTop {
         this.panel_hero.resize(this.width - 420, 65, 400, this.panel_hero.children.length*68);
         this.panel_enemy.resize(this.width - 420, 65, 400, this.panel_enemy.children.length*68);
         this.panel_token.resize(this.width - 420, 65, 400, this.panel_token.children.length*68);
+
+        this.edit_piece_window.resize((this.width/2) - 200, (this.height/2)-200, 400, 400);
     }
     handleKey(code) {
         let keycodes_wasd = {
@@ -195,6 +208,7 @@ class TableTop {
         this.mouse.y = y;
 
         let evt_consumed = false;
+        evt_consumed |= this.edit_piece_window._mouseMove(x, y);
         evt_consumed |= this.toolbar._mouseMove(x, y);
         evt_consumed |= this.panel_hero._mouseMove(x, y);
         evt_consumed |= this.panel_enemy._mouseMove(x, y);
@@ -207,6 +221,7 @@ class TableTop {
     }
     mouseClick(x, y, button) {
         let evt_consumed = false;
+        evt_consumed |= this.edit_piece_window._onClick(x, y, button);
         evt_consumed |= this.toolbar._onClick(x, y, button);
         evt_consumed |= this.panel_hero._onClick(x, y, button);
         evt_consumed |= this.panel_enemy._onClick(x, y, button);
@@ -270,5 +285,13 @@ class TableTop {
         fr.addEventListener('load', function(e) {
             _Instance.network.sendMap(fr.result);
         });
+    }
+    getPlayerName() {
+        let n = localStorage.player_name;
+        if (n == "Anon" || n == undefined) {
+            n = window.prompt("Wie sollen wir dich nennen?");
+        }
+        localStorage.player_name = n;
+        return n;
     }
 }

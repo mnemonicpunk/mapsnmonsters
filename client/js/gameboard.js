@@ -44,6 +44,14 @@ class GameBoard {
             let hp = this.getHoveredPosition();
             ctx.strokeStyle = "#fff";
             ctx.strokeRect(hp.x*SUBTILE_WIDTH + x, hp.y*SUBTILE_HEIGHT + y, SUBTILE_WIDTH, SUBTILE_HEIGHT);
+
+            // draw the piece name if are above a piece
+            let p = this.getPieceAtPosition(hp.x, hp.y);
+            if (p != null) {
+                ctx.fillStyle = "#fff";
+                let size = ctx.measureText(p.name);
+                ctx.fillText(p.name, x + ((hp.x + 0.5) * SUBTILE_WIDTH) - size.width/2, y + hp.y*SUBTILE_HEIGHT - 5);
+            }
         }
 
         //ctx.fillText(hp.x + "/" + hp.y + " Type: " + this.getTile(ht.x, ht.y).type, 10, 10);
@@ -183,5 +191,24 @@ class GameBoard {
                 count++;
             }
         }
+    }
+    getPieceByType(type, num) {
+        let count = 0;
+        for(let i=0; i<this.pieces.length; i++) {
+            if (this.pieces[i].type == type) {
+                if (count == num) {
+                    return this.pieces[i];
+                }
+                count++;
+            }
+        }
+    }    
+    getPieceAtPosition(x, y) {
+        for (let i=0; i<this.pieces.length; i++) {
+            if ((this.pieces[i].x == x) && (this.pieces[i].y == y)) {
+                return this.pieces[i];
+            }
+        }
+        return null;
     }
 }
