@@ -39,6 +39,7 @@ class Network {
                 this.tabletop.board.setPieceState(msg.data);
                 break;   
             case "piece_meta":
+                console.log("meta update!");
                 this.tabletop.board.setPieceMeta(msg.data);
                 this.tabletop.populateTokenMenus(msg.data);
                 break;                  
@@ -77,5 +78,18 @@ class Network {
     }
     sendMap(map_data) {
         this.sendMessage('load_map', map_data);
+    }
+    sendPieceEdit(num, piece) {
+        this.sendMessage('edit_piece', {
+            num: num,
+            type: piece.type,
+            icon: piece.icon,
+            name: piece.name
+        });
+    }
+    sendPieceClaim(num) {
+        this.sendMessage('claim_piece', {
+            num: num
+        });
     }
 }

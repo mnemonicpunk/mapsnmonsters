@@ -61,6 +61,18 @@ class TTUser  {
                 this.getRoom().loadUserMap(msg.data);
                 this.server.updateDirty();
                 break;                              
+            case "edit_piece":
+                let p = this.getRoom().pieces[msg.data.num];
+                p.name = msg.data.name;
+                p.type = msg.data.type;
+                p.icon = msg.data.icon;
+                this.getRoom().piecesMetaDirty();
+                this.server.updateDirty();
+                break;  
+            case "claim_piece":
+                this.getRoom().claimPiece(msg.data.num, this.player.name);
+                this.server.updateDirty();
+                break;                                
             default:
                 console.log("User sent unknown message type: " + msg.type);
                 break;

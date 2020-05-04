@@ -92,7 +92,11 @@ class TTServer {
         if (this.room.pieces_dirty) {
             this.sendPieceDataToUsers(this.room.pieces);
             this.room.pieces_dirty = false;
-        }        
+        }    
+        if (this.room.pieces_meta_dirty) {
+            this.sendPieceMetaToUsers(this.room.pieces);
+            this.room.pieces_meta_dirty = false;
+        }    
     }
 }
 

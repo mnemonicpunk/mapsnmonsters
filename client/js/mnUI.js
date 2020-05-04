@@ -157,11 +157,11 @@ class wTokenPanel extends mnWidget {
         this.select_callback = null;
         this.context_callback = null;
     }
-    addToken(name, icon) {
+    addToken(name, icon_type, icon_num) {
         var _Instance = this;
         var index = this.children.length;
 
-        let t = new wTokenItem(0, this.children.length*68, this.width, 68, name, icon);
+        let t = new wTokenItem(0, this.children.length*68, this.width, 68, name, new GameIcon(icon_type, icon_num));
         t.click_callback = function(button) {
             if (button == 0) {
                 _Instance.select(index);
@@ -233,9 +233,9 @@ class wButton extends mnWidget {
 class wTokenItem extends wButton {
     constructor(x, y, width, height, name, icon) {
         super(x, y, width, height, name);
-        this.icon = icon;
-        this.img = document.createElement('img');
-        this.img.src = "./graphics/piece/" + icon + ".png";
+        this.icon = icon;    
+
+        console.dir(icon);
     }
     draw(ctx) {
         if (this.hovered) {
@@ -249,7 +249,8 @@ class wTokenItem extends wButton {
 
         ctx.fillStyle = UICOL.text;
         ctx.fillText(this.name, this.x + 68, this.y + this.height*0.55);
-        ctx.drawImage(this.img, this.x + 10, this.y + 10);
+        //ctx.drawImage(this.img, this.x + 10, this.y + 10);
+        this.icon.draw(ctx, this.x + 10, this.y + 10, 48, 48);
     }
 }
 
@@ -259,20 +260,46 @@ class wEditPiece extends mnWidget {
         this.icon_selector = new wIconSelector(10, 10, this.width - 20, 40);
         this.children.push(this.icon_selector);
         this.piece = null;
+        this.confirm_callback = null;
+        this.claim_callback = null;
 
-        /*
-        this.claim_button = new wButton(20, this.height-60, 170, 40, "Beanspruchen");
+        this.claim_button = new wButton(20, this.height-60, 170, 40, "Das bin ich!");
         this.children.push(this.claim_button);
-        */
+        this.claim_button.active = false;
+
+        var _Instance = this;
 
         this.confirm_button = new wButton(this.width-190, this.height-60, 170, 40, "Okay");
+        this.confirm_button.click_callback = function() {
+            _Instance.confirmEdit();
+        }
+
         this.children.push(this.confirm_button);
     }
     beginEdit(piece) {
         this.active = true;
         this.piece = piece;
-        console.dir(piece);
         this.icon_selector.populate(piece.type);
+        this.icon_selector.select(this.piece.icon);
+
+        this.claim_button.active = false;
+        if (piece.type == "hero") {
+            let _Instance = this;
+
+            this.claim_button.active = true;
+            this.claim_button.click_callback = function() {
+                if (_Instance.claim_callback != null) {
+                    _Instance.claim_callback(piece);
+                }
+            }
+        }
+    }
+    confirmEdit() {
+        this.piece.icon = this.icon_selector.selected_icon;
+        this.active = false;
+        if (this.confirm_callback != null) {
+            this.confirm_callback(this.piece);
+        }
     }
     draw(ctx) {
         ctx.fillStyle = UICOL.panel;
@@ -347,7 +374,7 @@ class wIcon extends mnWidget {
         ctx.drawImage(this.sheet, ix*(source_size*2), iy*(source_size*2), source_size, source_size, this.x, this.y, this.width, this.height);
         if (this.selected) {
             ctx.strokeStyle = "#fff";
-            ctx.strokeRect(this.x, this.y, source_size-2, source_size-2);
+            ctx.strokeRect(this.x, this.y, this.width-2, this.height-2);
         }
     }
     onClick() {

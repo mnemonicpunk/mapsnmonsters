@@ -211,4 +211,12 @@ class GameBoard {
         }
         return null;
     }
+    getPieceNumber(piece) {
+        for (let i=0; i<this.pieces.length; i++) {
+            if (this.pieces[i] == piece) {
+                return i;
+            }
+        }
+        return -1;
+    }
 }

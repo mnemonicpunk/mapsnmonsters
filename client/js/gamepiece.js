@@ -1,6 +1,6 @@
 class GamePiece {
     constructor(name, icon, type) {
-        this.img = document.createElement('img');
+        this.game_icon = new GameIcon(type, 0);
         this.updateMeta(name, icon, type);
 
         this.x = 50;
@@ -26,8 +26,7 @@ class GamePiece {
         this.name = name;
         this.icon = icon;
         this.type = type;
-        
-        this.img.src = "./graphics/piece/" + icon + ".png";
+        this.game_icon.update(type, icon);
     }
     remove() {
         this.on_board = false;
@@ -43,6 +42,7 @@ class GamePiece {
         this.tween_x -= dx * 0.2;
         this.tween_y -= dy * 0.2;
 
-        ctx.drawImage(this.img, x + (this.tween_x), y + (this.tween_y));
+        //ctx.drawImage(this.img, x + (this.tween_x), y + (this.tween_y));
+        this.game_icon.draw(ctx, x + this.tween_x, y + this.tween_y, 48, 48);
     }
 }

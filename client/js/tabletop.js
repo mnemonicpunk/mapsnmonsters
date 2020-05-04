@@ -75,6 +75,12 @@ class TableTop {
 
         this.edit_piece_window = new wEditPiece(0, 0, 400, 400);
         this.edit_piece_window.active = false;
+        this.edit_piece_window.confirm_callback = function(piece) {
+            _Instance.sendPieceEdit(piece);
+        }
+        this.edit_piece_window.claim_callback = function(piece) {
+            _Instance.sendPieceClaim(piece);
+        }
 
         let _draw = function() {
             _Instance.draw();
@@ -256,6 +262,12 @@ class TableTop {
     sendPlacePiece(x, y, num) {
         this.network.sendPlacePiece(x, y, num);
     }
+    sendPieceEdit(piece) {
+        this.network.sendPieceEdit(this.board.getPieceNumber(piece), piece);
+    }
+    sendPieceClaim(piece) {
+        this.network.sendPieceClaim(this.board.getPieceNumber(piece));
+    }
     sendRemovePiece(num) {
         this.network.sendRemovePiece(num);
     }    
@@ -267,13 +279,13 @@ class TableTop {
         for (let i=0; i<piece_data.length; i++) {
             let p = piece_data[i];
             if (p.type == "hero") {
-                this.panel_hero.addToken(p.name, p.icon);
+                this.panel_hero.addToken(p.name, p.type, p.icon);
             }
             if (p.type == "enemy") {
-                this.panel_enemy.addToken(p.name, p.icon);
+                this.panel_enemy.addToken(p.name, p.type, p.icon);
             }            
             if (p.type == "token") {
-                this.panel_token.addToken(p.name, p.icon);
+                this.panel_token.addToken(p.name, p.type, p.icon);
             }            
         }
     }
