@@ -92,6 +92,19 @@ class TableTop {
             e.preventDefault();
         });
 
+        this.canvas.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            
+        });
+        this.canvas.addEventListener('drop', function(ev) {
+            ev.preventDefault();
+            
+            // Use DataTransfer interface to access the file(s)
+            for (var i = 0; i < ev.dataTransfer.files.length; i++) {
+                _Instance.readMapFromFile(ev.dataTransfer.files[i]);
+            }       
+        });
+
         this.board.setupMap(EMPTY_MAP);
     }
     draw() {
@@ -207,8 +220,6 @@ class TableTop {
 
         this.player_name = cred.name;
         this.player_token = cred.id;
-
-        console.dir(cred);
     }
     sendReveal(x, y, state) {
         this.network.sendReveal(x, y, state);
@@ -236,5 +247,14 @@ class TableTop {
                 this.panel_token.addToken(p.name, p.icon);
             }            
         }
+    }
+    readMapFromFile(file) {
+        var _Instance = this;
+        //console.dir(file);
+        let fr = new FileReader();
+        fr.readAsText(file);
+        fr.addEventListener('load', function(e) {
+            _Instance.network.sendMap(fr.result);
+        });
     }
 }

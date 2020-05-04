@@ -39,7 +39,6 @@ class Network {
                 this.tabletop.board.setPieceState(msg.data);
                 break;   
             case "piece_meta":
-                console.dir(msg.data);
                 this.tabletop.board.setPieceMeta(msg.data);
                 this.tabletop.populateTokenMenus(msg.data);
                 break;                  
@@ -75,5 +74,8 @@ class Network {
         this.sendMessage('remove_piece', {
             num: num
         });
-    }        
+    }
+    sendMap(map_data) {
+        this.sendMessage('load_map', map_data);
+    }
 }

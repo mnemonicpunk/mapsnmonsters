@@ -158,7 +158,6 @@ class wTokenPanel extends mnWidget {
 
         let t = new wTokenItem(0, this.children.length*68, this.width, 68, name, icon);
         t.click_callback = function() {
-            console.dir(index);
             _Instance.select(index);
         }
         this.children.push(t);

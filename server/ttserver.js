@@ -5,7 +5,7 @@ let TTPlayer = require('./ttplayer.js');
 class TTServer {
     constructor() {
         this.users = [];
-        this.room = new TTRoom();
+        this.room = new TTRoom(this);
         this.players = [];
     }
     connectUser(ws) {

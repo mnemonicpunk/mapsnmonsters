@@ -70,7 +70,6 @@ class GameBoard {
         this.drawMap();
     }
     setMapState(map_data) {
-        console.dir(map_data);
         for (let i=0; i<map_data.length; i++) {
             this.tiles[i].type = map_data[i].type-1;
             this.tiles[i].visible = map_data[i].visible;
@@ -87,7 +86,6 @@ class GameBoard {
         }
     }
     setPieceMeta(piece_data) {
-        console.dir(piece_data);
         for (let i=0; i<piece_data.length; i++) {
             if (this.pieces.length <= i) {
                 let p = new GamePiece(piece_data[i].name, piece_data[i].icon, piece_data[i].type);
@@ -180,7 +178,6 @@ class GameBoard {
             if (this.pieces[i].type == type) {
                 if (count == num) {
                     this.selected_piece = i;
-                    console.dir(this.pieces[this.selected_piece]);
                     return;
                 }
                 count++;

@@ -56,7 +56,11 @@ class TTUser  {
             case "remove_piece":
                 this.getRoom().removePiece(msg.data.num);
                 this.server.updateDirty();
-                break;                
+                break;
+            case "load_map":
+                this.getRoom().loadUserMap(msg.data);
+                this.server.updateDirty();
+                break;                              
             default:
                 console.log("User sent unknown message type: " + msg.type);
                 break;
@@ -94,7 +98,6 @@ class TTUser  {
         this.mode = 0;
 
         let m = this.getRoom().getPiecesMeta();
-        console.dir(m);
 
         // TO-DO: Make neat!
         this.server.sendMapToUsers(this.getRoom().map);
