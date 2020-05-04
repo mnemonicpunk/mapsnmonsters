@@ -16,6 +16,10 @@ class TableTop {
             x: (MAP_WIDTH*SUBTILE_WIDTH*4)/2,
             y: (MAP_HEIGHT*SUBTILE_HEIGHT*4)/2
         }
+        this.cam_tween = {
+            x: (MAP_WIDTH*SUBTILE_WIDTH*4)/2,
+            y: (MAP_HEIGHT*SUBTILE_HEIGHT*4)/2
+        }
         this.mouse = {
             x: 0,
             y: 0
@@ -106,8 +110,18 @@ class TableTop {
         });
 
         this.board.setupMap(EMPTY_MAP);
+
+        
     }
     draw() {
+        // tween the camera to the target position
+        let dx = this.cam_tween.x - this.cam.x;
+        let dy = this.cam_tween.y - this.cam.y;
+
+        this.cam.x += dx *0.2;
+        this.cam.y += dy *0.2;
+
+
         this.ctx.clearRect(0, 0, this.width, this.height);
         //let c = this.screenToBoardCoords(0, 0);
         this.board.draw(this.ctx, -this.cam.x + this.width/2, -this.cam.y + this.height/2);
@@ -161,7 +175,7 @@ class TableTop {
             up: 119,
             down: 115
         };
-        let scrollspeed = 12;
+        let scrollspeed = 32;
 
         if (code  == keycodes_wasd.up) {
             this.scrollView(0, -scrollspeed);
@@ -211,8 +225,8 @@ class TableTop {
         }
     }
     scrollView(x, y) {
-        this.cam.x += x;
-        this.cam.y += y;
+        this.cam_tween.x += x;
+        this.cam_tween.y += y;
     }
     setCredentials(cred) {
         localStorage.player_name = cred.name;
