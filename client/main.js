@@ -9,59 +9,73 @@ const EMPTY_MAP = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 const SAMPLE_PIECES = [
     {
         name: "Nibbi",
-        icon: "Icon_01"
+        icon: "Icon_01",
+        type: "hero"
     },
     {
         name: "Fussel",
-        icon: "Icon_02"
+        icon: "Icon_02",
+        type: "hero"
     },
     {
         name: "Robin",
-        icon: "Icon_03"
+        icon: "Icon_03",
+        type: "hero"
     },
     {
         name: "Rolf",
-        icon: "Icon_04"
+        icon: "Icon_04",
+        type: "hero"
     },
     {
         name: "Johnny",
-        icon: "Icon_05"
+        icon: "Icon_05",
+        type: "hero"
     },
     {
         name: "Spieler6",
-        icon: "Icon_06"
+        icon: "Icon_06",
+        type: "hero"
     },           
     {
         name: "Gegner1",
-        icon: "Icon_09"
+        icon: "Icon_09",
+        type: "enemy"
     },
     {
         name: "Gegner2",
-        icon: "Icon_09"
+        icon: "Icon_09",
+        type: "enemy"
     },
     {
         name: "Gegner3",
-        icon: "Icon_09"
+        icon: "Icon_09",
+        type: "enemy"
     },
     {
         name: "Gegner4",
-        icon: "Icon_09"
+        icon: "Icon_09",
+        type: "enemy"
     },
     {
         name: "Gegner5",
-        icon: "Icon_09"
+        icon: "Icon_09",
+        type: "enemy"
     },
     {
         name: "Gegner6",
-        icon: "Icon_09"
+        icon: "Icon_09",
+        type: "enemy"
     },
     {
         name: "Gegner7",
-        icon: "Icon_09"
+        icon: "Icon_09",
+        type: "enemy"
     },
     {
         name: "Gegner8",
-        icon: "Icon_09"
+        icon: "Icon_09",
+        type: "enemy"
     }    
 ]
 

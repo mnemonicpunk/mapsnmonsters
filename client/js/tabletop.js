@@ -2,11 +2,7 @@ class TableTop {
     constructor() {
         let _Instance = this;
 
-        // gamemodes
-        // -1 = spectator
-        // 0 = DM
-        // 1 = player
-        this.gamemode = -1;
+        this.ui_mode = 0;
 
         // data used to auth with the server
         this.player_name = "";
@@ -16,7 +12,6 @@ class TableTop {
         this.canvas = document.getElementById('game_canvas');
         this.ctx = this.canvas.getContext('2d');
         this.board = new GameBoard(this);
-        this.sideboard = new SideBoard();
         this.cam = {
             x: (MAP_WIDTH*SUBTILE_WIDTH*4)/2,
             y: (MAP_HEIGHT*SUBTILE_HEIGHT*4)/2
@@ -24,6 +19,48 @@ class TableTop {
         this.mouse = {
             x: 0,
             y: 0
+        }
+
+        this.toolbar = new wToolbar(10, 10, this.width-20, 40);
+        this.toolbar.addItem("Zeiger", function() {
+            _Instance.setUIMode(0);
+        });
+        this.toolbar.addItem("Karte", function() {
+            _Instance.setUIMode(1);
+        });
+        this.toolbar.addItem("Helden", function() {
+            _Instance.setUIMode(2);
+        });
+        this.toolbar.addItem("Gegner", function() {
+            _Instance.setUIMode(3);
+        });
+        this.toolbar.addItem("Tokens", function() {
+            _Instance.setUIMode(4);
+        });
+        this.toolbar.select(0);
+
+        this.panel_hero = new wTokenPanel(this.width - 420, 40, 400, 400);
+        this.panel_hero.active = false;
+        this.panel_hero.select_callback = function(num) {
+            _Instance.board.selectPieceByType("hero", num);
+            _Instance.panel_enemy.select(-1);
+            _Instance.panel_token.select(-1);
+        }
+
+        this.panel_enemy = new wTokenPanel(this.width - 420, 40, 400, 400);
+        this.panel_enemy.active = false;
+        this.panel_enemy.select_callback = function(num) {
+            _Instance.board.selectPieceByType("enemy", num);
+            _Instance.panel_hero.select(-1);
+            _Instance.panel_token.select(-1);
+        }
+
+        this.panel_token = new wTokenPanel(this.width - 420, 40, 400, 400);
+        this.panel_token.active = false;
+        this.panel_token.select_callback = function(num) {
+            _Instance.board.selectPieceByType("token", num);
+            _Instance.panel_hero.select(-1);
+            _Instance.panel_enemy.select(-1);
         }
 
         let _draw = function() {
@@ -56,21 +93,53 @@ class TableTop {
         });
 
         this.board.setupMap(EMPTY_MAP);
-        for (let i=0; i<SAMPLE_PIECES.length; i++) {
-            this.board.addPiece(new GamePiece(SAMPLE_PIECES[i].name, SAMPLE_PIECES[i].icon));
-        }
     }
     draw() {
         this.ctx.clearRect(0, 0, this.width, this.height);
         //let c = this.screenToBoardCoords(0, 0);
         this.board.draw(this.ctx, -this.cam.x + this.width/2, -this.cam.y + this.height/2);
-        this.sideboard.draw(this.ctx, this.width - 220, 20);
+
+        this.toolbar._draw(this.ctx, 0, 0);
+        this.panel_hero._draw(this.ctx, 0, 0);
+        this.panel_enemy._draw(this.ctx, 0, 0);
+        this.panel_token._draw(this.ctx, 0, 0);
+    }
+    setUIMode(num) {
+        this.ui_mode = num;
+        this.toolbar.select(num);
+        this.panel_hero.active = false;
+        this.panel_enemy.active = false;
+        this.panel_token.active = false;
+
+        if (this.ui_mode == 0) {
+            this.board.user_mode = 0;
+        }
+        if (this.ui_mode == 1) {
+            this.board.user_mode = 1;
+        }
+        if (this.ui_mode == 2) {
+            this.panel_hero.active = true;
+            this.board.user_mode = 2;
+        }
+        if (this.ui_mode == 3) {
+            this.panel_enemy.active = true;
+            this.board.user_mode = 2;
+        }        
+        if (this.ui_mode == 4) {
+            this.panel_token.active = true;
+            this.board.user_mode = 2;
+        }        
     }
     resize() {
         this.width = this.canvas.clientWidth;
         this.height = this.canvas.clientHeight;
         this.canvas.width = this.width;
         this.canvas.height = this.height;
+
+        this.toolbar.resize(this.width - 420, 20, 400, 40);
+        this.panel_hero.resize(this.width - 420, 65, 400, this.panel_hero.children.length*68);
+        this.panel_enemy.resize(this.width - 420, 65, 400, this.panel_enemy.children.length*68);
+        this.panel_token.resize(this.width - 420, 65, 400, this.panel_token.children.length*68);
     }
     handleKey(code) {
         let keycodes_wasd = {
@@ -98,23 +167,34 @@ class TableTop {
         this.mouse.x = x;
         this.mouse.y = y;
 
-        this.board.mouseMove(x + this.cam.x - this.width/2, y + this.cam.y - this.height/2);
+        let evt_consumed = false;
+        evt_consumed |= this.toolbar._mouseMove(x, y);
+        evt_consumed |= this.panel_hero._mouseMove(x, y);
+        evt_consumed |= this.panel_enemy._mouseMove(x, y);
+        evt_consumed |= this.panel_token._mouseMove(x, y);
+
+        if (!evt_consumed) {
+            this.board.mouseMove(x + this.cam.x - this.width/2, y + this.cam.y - this.height/2);
+        }
+        
     }
     mouseClick(x, y, button) {
-        this.board.mouseClick(button, x + this.cam.x - this.width/2, y + this.cam.y - this.height/2);
+        let evt_consumed = false;
+        evt_consumed |= this.toolbar._onClick(x, y, button);
+        evt_consumed |= this.panel_hero._onClick(x, y, button);
+        evt_consumed |= this.panel_enemy._onClick(x, y, button);
+        evt_consumed |= this.panel_token._onClick(x, y, button);
+
+        if (!evt_consumed) {
+            this.board.mouseClick(button, x + this.cam.x - this.width/2, y + this.cam.y - this.height/2);
+        }
     }
     mouseWheel(amount) {
         if (amount < 0) {
-            this.sideboard.scroll(-1);
+            
         }
         if (amount > 0) {
-            this.sideboard.scroll(1);
-        }
-        if (this.sideboard.selected_slot == 0) {
-            this.board.user_mode = 0;
-        } else {
-            this.board.user_mode = 1;
-            this.board.selected_piece = this.sideboard.selected_slot - 1;
+            
         }
     }
     scrollView(x, y) {
@@ -139,4 +219,22 @@ class TableTop {
     sendRemovePiece(num) {
         this.network.sendRemovePiece(num);
     }    
+    populateTokenMenus(piece_data) {
+        this.panel_hero.clearTokens();
+        this.panel_enemy.clearTokens();
+        this.panel_token.clearTokens();
+
+        for (let i=0; i<piece_data.length; i++) {
+            let p = piece_data[i];
+            if (p.type == "hero") {
+                this.panel_hero.addToken(p.name, p.icon);
+            }
+            if (p.type == "enemy") {
+                this.panel_enemy.addToken(p.name, p.icon);
+            }            
+            if (p.type == "token") {
+                this.panel_token.addToken(p.name, p.icon);
+            }            
+        }
+    }
 }

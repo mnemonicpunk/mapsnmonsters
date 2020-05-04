@@ -6,8 +6,9 @@ class GameBoard {
         this.tiles = [];
         this.pieces = [];
 
-        // 0 = reveal/hide map
-        // 1 = manipulate pieces
+        // 0 = pointer
+        // 1 = reveal/hide map
+        // 2 = manipulate pieces
         this.user_mode = 0;
 
         this.selected_piece = 0;
@@ -31,14 +32,14 @@ class GameBoard {
             this.pieces[i].draw(ctx, x, y);
         }
 
-        if (this.user_mode == 0) {
+        if (this.user_mode == 1) {
             // draw tile target rect
             let ht = this.getHoveredTile();
             ctx.strokeStyle = "#888";
             ctx.strokeRect(ht.x*SUBTILE_WIDTH*4 + x, ht.y*SUBTILE_HEIGHT*4 + y, SUBTILE_WIDTH*4, SUBTILE_HEIGHT*4);
         }
 
-        if (this.user_mode == 1) {
+        if (this.user_mode == 2) {
             // draw small target rect
             let hp = this.getHoveredPosition();
             ctx.strokeStyle = "#fff";
@@ -85,16 +86,38 @@ class GameBoard {
             }
         }
     }
+    setPieceMeta(piece_data) {
+        console.dir(piece_data);
+        for (let i=0; i<piece_data.length; i++) {
+            if (this.pieces.length <= i) {
+                let p = new GamePiece(piece_data[i].name, piece_data[i].icon, piece_data[i].type);
+                this.pieces.push(p);
+            } else {
+                this.pieces[i].updateMeta(piece_data[i].name, piece_data[i].icon, piece_data[i].type);
+            }
+        }
+    }    
     mouseMove(x, y) {
         this.hovered_position = {
             x: Math.floor(x/SUBTILE_WIDTH),
             y: Math.floor(y/SUBTILE_HEIGHT)
         }
-        //console.dir(this.hovered_position);
+        if (this.hovered_position.x < 0) {
+            this.hovered_position.x = 0;
+        }
+        if (this.hovered_position.y < 0) {
+            this.hovered_position.y = 0;
+        }
+        if (this.hovered_position.x >= (MAP_WIDTH*4)) {
+            this.hovered_position.x = (MAP_WIDTH*4)-1;
+        }         
+        if (this.hovered_position.y >= (MAP_HEIGHT*4)) {
+            this.hovered_position.y = (MAP_HEIGHT*4)-1;
+        }                 
     }
     mouseClick(button, x, y) {
         this.mouseMove(x, y);
-        if (this.user_mode == 0) {
+        if (this.user_mode == 1) {
             let ht = this.getHoveredTile();
             let t = this.getTile(ht.x, ht.y);
             //t.visible = !t.visible;
@@ -110,7 +133,7 @@ class GameBoard {
 
             this.drawMap();
         }
-        if (this.user_mode == 1) {
+        if (this.user_mode == 2) {
             let hp = this.getHoveredPosition();
             let p = this.pieces[this.selected_piece];
             
@@ -125,15 +148,43 @@ class GameBoard {
         }
     }
     getHoveredTile() {
-        return {
+        let ht = {
             x: Math.floor(this.hovered_position.x/4),
             y: Math.floor(this.hovered_position.y/4)
+        };
+
+        if (ht.x < 0) { 
+            ht.x = 0;
         }
+        if (ht.y < 0) { 
+            ht.y = 0;
+        }
+        if (ht.x >= MAP_WIDTH) { 
+            ht.x = MAP_WIDTH-1;
+        }
+        if (ht.y >= MAP_HEIGHT) { 
+            ht.y = MAP_HEIGHT-1;
+        }
+
+        return ht;
     }
     getHoveredPosition() {
         return this.hovered_position;
     }
     getTile(x, y) {
         return this.tiles[x + y*MAP_WIDTH];
+    }
+    selectPieceByType(type, num) {
+        let count = 0;
+        for(let i=0; i<this.pieces.length; i++) {
+            if (this.pieces[i].type == type) {
+                if (count == num) {
+                    this.selected_piece = i;
+                    console.dir(this.pieces[this.selected_piece]);
+                    return;
+                }
+                count++;
+            }
+        }
     }
 }

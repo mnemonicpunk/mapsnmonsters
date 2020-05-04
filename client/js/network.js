@@ -37,7 +37,12 @@ class Network {
                 break;
             case "piece_data":
                 this.tabletop.board.setPieceState(msg.data);
-                break;    
+                break;   
+            case "piece_meta":
+                console.dir(msg.data);
+                this.tabletop.board.setPieceMeta(msg.data);
+                this.tabletop.populateTokenMenus(msg.data);
+                break;                  
             default:
                 console.log("Unknown message type " + msg.type);
                 break;

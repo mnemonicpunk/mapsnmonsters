@@ -1,7 +1,8 @@
 class TTPiece {
-    constructor(name, icon) {
+    constructor(name, icon, type) {
         this.name = name;
         this.icon = icon;
+        this.type = type;
 
         this.x = 0;
         this.y = 0;

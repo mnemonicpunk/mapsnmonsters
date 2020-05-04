@@ -1,9 +1,7 @@
 class GamePiece {
-    constructor(name, icon) {
-        this.name = name;
-        this.icon = icon;
+    constructor(name, icon, type) {
         this.img = document.createElement('img');
-        this.img.src = "./graphics/piece/" + icon + ".png";
+        this.updateMeta(name, icon, type);
 
         this.x = 50;
         this.y = 16;
@@ -23,6 +21,13 @@ class GamePiece {
         }
 
         this.on_board = true;
+    }
+    updateMeta(name, icon, type) {
+        this.name = name;
+        this.icon = icon;
+        this.type = type;
+        
+        this.img.src = "./graphics/piece/" + icon + ".png";
     }
     remove() {
         this.on_board = false;

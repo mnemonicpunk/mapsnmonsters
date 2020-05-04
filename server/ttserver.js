@@ -67,6 +67,9 @@ class TTServer {
         }
         this.sendMessageToUsers('piece_data', json);
     }
+    sendPieceMetaToUsers() {
+        this.sendMessageToUsers('piece_meta', this.room.getPiecesMeta());
+    }
     pruneUsers() {
         let is_clean = false;
         while(!is_clean) {

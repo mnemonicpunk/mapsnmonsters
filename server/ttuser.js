@@ -93,7 +93,12 @@ class TTUser  {
 
         this.mode = 0;
 
+        let m = this.getRoom().getPiecesMeta();
+        console.dir(m);
+
+        // TO-DO: Make neat!
         this.server.sendMapToUsers(this.getRoom().map);
+        this.sendMessage('piece_meta', this.getRoom().getPiecesMeta());
         this.server.sendPieceDataToUsers(this.getRoom().pieces);
     }
     getRoom() {
