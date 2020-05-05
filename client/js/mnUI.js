@@ -27,7 +27,7 @@ class mnWidget {
     withChildren(callback) {
         let ret = false;
         for (let i=0; i < this.children.length; i++) {
-            ret = (ret || callback(this, this.children[i]));
+            ret |= (callback(this, this.children[i]));
         }
         return ret;
     }
@@ -42,9 +42,9 @@ class mnWidget {
 
         let consumed = this.withChildren(function(parent, self) {
             return self._mouseMove(x - parent.x, y - parent.y);
-        });        
+        }); 
         if (!consumed) {
-            this.mouseMove(x, y);
+            this.mouseMove(x, y);       
             if (this.isUnderMouse(x, y)) {
                 this.onHover(x, y);
                 consumed = true;

@@ -123,7 +123,7 @@ class wButton extends mnWidget {
         this.hovered = false;
         this.selected = false;
     }
-    mouseMove() {
+    mouseMove(x, y) {
         this.hovered = false;
     }
     onHover(x, y) {
