@@ -95,8 +95,6 @@ class TableTop {
         this.gameUI.panel_enemy.active = false;
         this.gameUI.panel_token.active = false;
 
-        console.log("setting ui mode " + num);
-
         if (this.ui_mode == 0) {
             this.board.user_mode = 0;
         }
@@ -163,7 +161,6 @@ class TableTop {
         let evt_consumed = false;
 
         evt_consumed = this.gameUI._onClick(x, y, button);
-        console.log(evt_consumed);
 
         if (!evt_consumed) {
             this.board.mouseClick(button, x + this.cam.x - this.width/2, y + this.cam.y - this.height/2);

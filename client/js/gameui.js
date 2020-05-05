@@ -154,8 +154,6 @@ class wTokenItem extends wButton {
     constructor(x, y, width, height, name, icon) {
         super(x, y, width, height, name);
         this.icon = icon;    
-
-        console.dir(icon);
     }
     draw(ctx) {
         if (this.hovered) {
