@@ -12,7 +12,6 @@ class Network {
         this.sock.addEventListener('open', function() {
             console.log("Connected!");
             _Instance.connected = true;
-            //_Instance.sendMessage('test', 'data');
             _Instance.beginAuth();
         });
         this.sock.addEventListener('message', function(msg) {
@@ -41,7 +40,7 @@ class Network {
             case "piece_meta":
                 console.log("meta update!");
                 this.tabletop.board.setPieceMeta(msg.data);
-                this.tabletop.populateTokenMenus(msg.data);
+                this.tabletop.gameUI.populatePieceMenus(msg.data);
                 break;                  
             default:
                 console.log("Unknown message type " + msg.type);
@@ -79,7 +78,8 @@ class Network {
     sendMap(map_data) {
         this.sendMessage('load_map', map_data);
     }
-    sendPieceEdit(num, piece) {
+    sendPieceEdit(piece) {
+        let num = this.tabletop.board.getPieceNumber(piece)
         this.sendMessage('edit_piece', {
             num: num,
             type: piece.type,
@@ -87,7 +87,8 @@ class Network {
             name: piece.name
         });
     }
-    sendPieceClaim(num) {
+    sendPieceClaim(piece) {
+        let num = this.tabletop.board.getPieceNumber(piece);
         this.sendMessage('claim_piece', {
             num: num
         });

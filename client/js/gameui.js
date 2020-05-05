@@ -67,21 +67,19 @@ class wToolbarItem extends mnWidget {
     }
 }
 
-class wTokenPanel extends mnWidget {
+class wPiecePanel extends mnWidget {
     constructor(x, y, width, height) {
         super(x, y, width, height);
-        this.title = "Helden Tokens";
-        this.tokens = [];
 
         this.selected = 0;
         this.select_callback = null;
         this.context_callback = null;
     }
-    addToken(name, icon_type, icon_num) {
+    addPiece(name, icon_type, icon_num) {
         var _Instance = this;
         var index = this.children.length;
 
-        let t = new wTokenItem(0, this.children.length*68, this.width, 68, name, new GameIcon(icon_type, icon_num));
+        let t = new wPiecePanelItem(0, this.children.length*68, this.width, 68, name, new GameIcon(icon_type, icon_num));
         t.click_callback = function(button) {
             if (button == 0) {
                 _Instance.select(index);
@@ -96,7 +94,7 @@ class wTokenPanel extends mnWidget {
         this.children.push(t);
         this.height = this.children.length*68;
     }
-    clearTokens() {
+    clearPieces() {
         this.children = [];
     }
     draw(ctx) {
@@ -150,7 +148,7 @@ class wButton extends mnWidget {
     }    
 }
 
-class wTokenItem extends wButton {
+class wPiecePanelItem extends wButton {
     constructor(x, y, width, height, name, icon) {
         super(x, y, width, height, name);
         this.icon = icon;    
@@ -257,10 +255,6 @@ class wIconSelector extends mnWidget {
             }    
         }        
     }
-    draw(ctx) {
-        /*ctx.fillStyle = "#fff";
-        ctx.fillRect(this.x, this.y, this.width, this.height);*/
-    }
     select(num) {
         console.log(num);
         this.selected_icon = num;
@@ -321,37 +315,37 @@ class GameUI extends mnUI {
         this.toolbar.addItem("Gegner", function() {
             _Instance.tabletop.setUIMode(3);
         });
-        this.toolbar.addItem("Tokens", function() {
+        this.toolbar.addItem("Andere", function() {
             _Instance.tabletop.setUIMode(4);
         });
         this.toolbar.select(0);
         
-        this.panel_hero = new wTokenPanel(this.width - 420, 40, 400, 400);
+        this.panel_hero = new wPiecePanel(this.width - 420, 40, 400, 400);
         this.panel_hero.active = false;
         this.panel_hero.select_callback = function(num) {
             _Instance.tabletop.board.selectPieceByType("hero", num);
             _Instance.panel_enemy.select(-1);
-            _Instance.panel_token.select(-1);
+            _Instance.panel_other.select(-1);
         }
         this.panel_hero.context_callback = function(num) {
             _Instance.edit_piece_window.beginEdit(_Instance.tabletop.board.getPieceByType("hero", num));
         }
 
-        this.panel_enemy = new wTokenPanel(this.width - 420, 40, 400, 400);
+        this.panel_enemy = new wPiecePanel(this.width - 420, 40, 400, 400);
         this.panel_enemy.active = false;
         this.panel_enemy.select_callback = function(num) {
             _Instance.tabletop.board.selectPieceByType("enemy", num);
             _Instance.panel_hero.select(-1);
-            _Instance.panel_token.select(-1);
+            _Instance.panel_other.select(-1);
         }
         this.panel_enemy.context_callback = function(num) {
             _Instance.edit_piece_window.beginEdit(_Instance.tabletop.board.getPieceByType("enemy", num));
         }
 
-        this.panel_token = new wTokenPanel(this.width - 420, 40, 400, 400);
-        this.panel_token.active = false;
-        this.panel_token.select_callback = function(num) {
-            _Instance.tabletop.board.selectPieceByType("token", num);
+        this.panel_other = new wPiecePanel(this.width - 420, 40, 400, 400);
+        this.panel_other.active = false;
+        this.panel_other.select_callback = function(num) {
+            _Instance.tabletop.board.selectPieceByType("other", num);
             _Instance.panel_hero.select(-1);
             _Instance.panel_enemy.select(-1);
         }
@@ -359,16 +353,16 @@ class GameUI extends mnUI {
         this.edit_piece_window = new wEditPiece(0, 0, 400, 400);
         this.edit_piece_window.active = false;
         this.edit_piece_window.confirm_callback = function(piece) {
-            _Instance.tabletop.sendPieceEdit(piece);
+            _Instance.tabletop.network.sendPieceEdit(piece);
         }
         this.edit_piece_window.claim_callback = function(piece) {
-            _Instance.tabletop.sendPieceClaim(piece);
+            _Instance.tabletop.network.sendPieceClaim(piece);
         }
 
         this.children.push(this.toolbar);
         this.children.push(this.panel_hero);
         this.children.push(this.panel_enemy);
-        this.children.push(this.panel_token);
+        this.children.push(this.panel_other);
         this.children.push(this.edit_piece_window);
     }
     resize(x, y, width, height) {
@@ -377,26 +371,26 @@ class GameUI extends mnUI {
         this.toolbar.resize(this.width - 420, 20, 400, 40);
         this.panel_hero.resize(this.width - 420, 65, 400, this.panel_hero.children.length*68);
         this.panel_enemy.resize(this.width - 420, 65, 400, this.panel_enemy.children.length*68);
-        this.panel_token.resize(this.width - 420, 65, 400, this.panel_token.children.length*68);
+        this.panel_other.resize(this.width - 420, 65, 400, this.panel_other.children.length*68);
 
         this.edit_piece_window.resize((this.width/2) - 200, (this.height/2)-200, 400, 400);
     }
-    populateTokenMenus(piece_data) {
-        this.panel_hero.clearTokens();
-        this.panel_enemy.clearTokens();
-        this.panel_token.clearTokens();
+    populatePieceMenus(piece_data) {
+        this.panel_hero.clearPieces();
+        this.panel_enemy.clearPieces();
+        this.panel_other.clearPieces();
         
 
         for (let i=0; i<piece_data.length; i++) {
             let p = piece_data[i];
             if (p.type == "hero") {
-                this.panel_hero.addToken(p.name, p.type, p.icon);
+                this.panel_hero.addPiece(p.name, p.type, p.icon);
             }
             if (p.type == "enemy") {
-                this.panel_enemy.addToken(p.name, p.type, p.icon);
+                this.panel_enemy.addPiece(p.name, p.type, p.icon);
             }            
-            if (p.type == "token") {
-                this.panel_token.addToken(p.name, p.type, p.icon);
+            if (p.type == "other") {
+                this.panel_other.addPiece(p.name, p.type, p.icon);
             }            
         }
     }

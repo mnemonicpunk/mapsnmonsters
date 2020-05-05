@@ -3,78 +3,8 @@ var TTPiece = require('./ttpiece.js');
 
 const FIELD_COMPONENTS_NUM = 24;
 
-const SAMPLE_PIECES = [
-    {
-        name: "Spieler1",
-        icon: 23,
-        type: "hero"
-    },
-    {
-        name: "Spieler2",
-        icon: 21,
-        type: "hero"
-    },
-    {
-        name: "Spieler3",
-        icon: 0,
-        type: "hero"
-    },
-    {
-        name: "Spieler4",
-        icon: 11,
-        type: "hero"
-    },
-    {
-        name: "Spieler5",
-        icon: 3,
-        type: "hero"
-    },
-    {
-        name: "Spieler6",
-        icon: 5,
-        type: "hero"
-    },           
-    {
-        name: "Gegner1",
-        icon: 16,
-        type: "enemy"
-    },
-    {
-        name: "Gegner2",
-        icon: 16,
-        type: "enemy"
-    },
-    {
-        name: "Gegner3",
-        icon: 16,
-        type: "enemy"
-    },
-    {
-        name: "Gegner4",
-        icon: 16,
-        type: "enemy"
-    },
-    {
-        name: "Gegner5",
-        icon: 16,
-        type: "enemy"
-    },
-    {
-        name: "Gegner6",
-        icon: 16,
-        type: "enemy"
-    },
-    {
-        name: "Gegner7",
-        icon: 16,
-        type: "enemy"
-    },
-    {
-        name: "Gegner8",
-        icon: 16,
-        type: "enemy"
-    }    
-];
+const GAME_PIECES = require('./data/GAME_PIECES.js');
+const GAME_MAP = require('./data/GAME_MAP.js');
 
 class TTRoom {
     constructor(server) {
@@ -84,9 +14,9 @@ class TTRoom {
         this.pieces_meta_dirty = false;
         this.server = server;
 
-        this.map.loadMapFile([0,0,0,13,13,0,0,0,0,0,13,12,12,13,0,0,0,14,12,12,12,12,16,0,22,12,12,1,1,16,0,0,0,15,2,0,0,0,0,0,0,0,15,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]);
-        for (let i=0; i<SAMPLE_PIECES.length; i++) {
-            let p = new TTPiece(SAMPLE_PIECES[i].name, SAMPLE_PIECES[i].icon, SAMPLE_PIECES[i].type);
+        this.map.loadMapFile(GAME_MAP);
+        for (let i=0; i<GAME_PIECES.length; i++) {
+            let p = new TTPiece(GAME_PIECES[i].name, GAME_PIECES[i].icon, GAME_PIECES[i].type);
             this.pieces.push(p);
         }
     }
@@ -102,11 +32,7 @@ class TTRoom {
 
         let json = [];
         for (let i=0; i<pieces.length; i++) {
-            json.push({
-                name: pieces[i].name,
-                icon: pieces[i].icon,
-                type: pieces[i].type,
-            });
+            json.push(this.pieces[i].getMeta());
         }
 
         return json;
@@ -151,22 +77,15 @@ class TTRoom {
         this.clearBoard();
         this.server.updateDirty();
     }
-    unclaimPieces(name) {
-        let count = 0;
+    unclaimPieces(player) {
         for (let i=0; i < this.pieces.length; i++) {
-            let p = this.pieces[i];
-            if (p.type == "hero") {
-                if (p.name == name) {
-                    p.name = "Spieler" + (count+1);
-                }
-                count++;    
-            }
+            this.pieces[i].unclaim(player);
         }
         this.piecesMetaDirty();
     }
-    claimPiece(num, name) {
-        this.unclaimPieces(name);
-        this.pieces[num].name = name;
+    claimPiece(num, player) {
+        this.unclaimPieces(player);
+        this.pieces[num].claim(player);
         this.piecesMetaDirty();
     }    
 }

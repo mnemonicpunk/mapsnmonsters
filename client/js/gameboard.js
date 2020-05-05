@@ -130,11 +130,11 @@ class GameBoard {
 
             if (button == 0) {
                 //t.visible = true;
-                this.tabletop.sendReveal(ht.x, ht.y, true);
+                this.tabletop.network.sendReveal(ht.x, ht.y, true);
             }
             if (button == 2) {
                 //t.visible = false;
-                this.tabletop.sendReveal(ht.x, ht.y, false);
+                this.tabletop.network.sendReveal(ht.x, ht.y, false);
             }
 
             this.drawMap();
@@ -145,11 +145,11 @@ class GameBoard {
             
             if (button == 0) {
                 //p.place(ht.x, ht.y);
-                this.tabletop.sendPlacePiece(hp.x, hp.y, this.selected_piece);
+                this.tabletop.network.sendPlacePiece(hp.x, hp.y, this.selected_piece);
             }
             if (button == 2) {
                 //p.remove();
-                this.tabletop.sendRemovePiece(this.selected_piece);
+                this.tabletop.network.sendRemovePiece(this.selected_piece);
             }            
         }
     }

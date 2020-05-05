@@ -69,9 +69,7 @@ class TableTop {
             }       
         });
 
-        this.board.setupMap(EMPTY_MAP);
-
-        
+        this.board.setupMap(EMPTY_MAP);     
     }
     draw() {
         // tween the camera to the target position
@@ -93,7 +91,7 @@ class TableTop {
         this.gameUI.toolbar.select(num);
         this.gameUI.panel_hero.active = false;
         this.gameUI.panel_enemy.active = false;
-        this.gameUI.panel_token.active = false;
+        this.gameUI.panel_other.active = false;
 
         if (this.ui_mode == 0) {
             this.board.user_mode = 0;
@@ -184,24 +182,6 @@ class TableTop {
 
         this.player_name = cred.name;
         this.player_token = cred.id;
-    }
-    sendReveal(x, y, state) {
-        this.network.sendReveal(x, y, state);
-    }
-    sendPlacePiece(x, y, num) {
-        this.network.sendPlacePiece(x, y, num);
-    }
-    sendPieceEdit(piece) {
-        this.network.sendPieceEdit(this.board.getPieceNumber(piece), piece);
-    }
-    sendPieceClaim(piece) {
-        this.network.sendPieceClaim(this.board.getPieceNumber(piece));
-    }
-    sendRemovePiece(num) {
-        this.network.sendRemovePiece(num);
-    }    
-    populateTokenMenus(piece_data) {
-        this.gameUI.populateTokenMenus(piece_data);
     }
     readMapFromFile(file) {
         var _Instance = this;
