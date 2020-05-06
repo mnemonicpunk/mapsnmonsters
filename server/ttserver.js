@@ -75,7 +75,12 @@ class TTServer {
         for (let i=0; i<this.users.length; i++) {
             this.users[i].sendPieceClasses(piece_classes);
         }
-    }    
+    }   
+    sendLogToUsers(log) {
+        for (let i=0; i<this.users.length; i++) {
+            this.users[i].sendLog(log);
+        }
+    }      
     pruneUsers() {
         let is_clean = false;
         while(!is_clean) {
@@ -102,6 +107,10 @@ class TTServer {
         if (this.room.piece_classes_dirty) {
             this.sendPieceClassesToUsers(this.room.getPieceClassData());
             this.room.piece_classes_dirty = false;
+        }
+        if (this.room.log_dirty) {
+            this.sendLogToUsers(this.room.getLog());
+            this.room.log_dirty = false;
         }
     }
 }

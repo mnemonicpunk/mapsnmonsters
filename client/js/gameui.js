@@ -301,6 +301,13 @@ class wIcon extends mnWidget {
     }
 }
 
+class wDice extends wButton {
+    draw(ctx) {
+        let img = document.getElementById('dice_' + this.name);
+        ctx.drawImage(img, 0, 0, img.width, img.height, this.x, this.y, this.width, this.height);
+    }
+}
+
 class GameUI extends mnUI {
     constructor(x, y, width, height, tabletop) {
         super(x, y, width, height);
@@ -373,11 +380,22 @@ class GameUI extends mnUI {
             _Instance.tabletop.network.sendPieceClassClaim(piece);
         }
 
+        this.d6 = new wDice(20, 20, 48, 48, "d6");
+        this.d6.click_callback = function() {
+            _Instance.tabletop.network.sendRollDice(1, 6);
+        }
+        this.d20 = new wDice(78, 20, 48, 48, "d20");
+        this.d20.click_callback = function() {
+            _Instance.tabletop.network.sendRollDice(1, 20);
+        }
+
         this.children.push(this.toolbar);
         this.children.push(this.panel_hero);
         this.children.push(this.panel_enemy);
         this.children.push(this.panel_other);
         this.children.push(this.edit_piece_window);
+        this.children.push(this.d6);
+        this.children.push(this.d20);
     }
     resize(x, y, width, height) {
         super.resize(x, y, width, height);

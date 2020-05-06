@@ -12,6 +12,7 @@ class TableTop {
         this.canvas = document.getElementById('game_canvas');
         this.ctx = this.canvas.getContext('2d');
         this.board = new GameBoard(this);
+        this.log = new GameLog();
         this.cam = {
             x: (MAP_WIDTH*SUBTILE_WIDTH*4)/2,
             y: (MAP_HEIGHT*SUBTILE_HEIGHT*4)/2
@@ -47,7 +48,6 @@ class TableTop {
         });
         window.addEventListener('mousedown', function(e) {
             _Instance.mouseClick(e.clientX, e.clientY, e.button);
-            
         });
         window.addEventListener('mousewheel', function(e) {
             _Instance.mouseWheel(e.deltaY);
@@ -83,6 +83,7 @@ class TableTop {
         this.ctx.clearRect(0, 0, this.width, this.height);
         //let c = this.screenToBoardCoords(0, 0);
         this.board.draw(this.ctx, -this.cam.x + this.width/2, -this.cam.y + this.height/2);
+        this.log.draw(this.ctx, 40, this.height-40);
 
         this.gameUI._draw(this.ctx, 0, 0);
     }

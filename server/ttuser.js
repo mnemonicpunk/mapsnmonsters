@@ -46,16 +46,10 @@ class TTUser  {
                 break;
             case "reveal":
                 this.getRoom().reveal(msg.data.x, msg.data.y, msg.data.state);
-                
-                break;
-            case "place_piece":
-                this.getRoom().placePiece(msg.data.x, msg.data.y, msg.data.num);
-                break;
-            case "remove_piece":
-                this.getRoom().removePiece(msg.data.num);
                 break;
             case "load_map":
                 this.getRoom().loadUserMap(msg.data);
+                this.getRoom().addLog(this.player.name + " hat eine neue Karte geladen, das Spielbrett wird neu aufgebaut.");
                 break;                              
             case "edit_piece_class":
                 let c = this.getRoom().getPieceClassByName(msg.data.name);
@@ -65,6 +59,7 @@ class TTUser  {
                 break;  
             case "claim_piece_class":
                 this.getRoom().claimPieceClass(msg.data.name, this.player);
+                this.getRoom().addLog(this.player.name + " spielt nun als " + msg.data.name);
                 break;     
             case "create_piece":
                 this.getRoom().createPieceAt(msg.data.x, msg.data.y, msg.data.class_name);
@@ -74,7 +69,10 @@ class TTUser  {
                 break;  
             case "remove_piece":
                 this.getRoom().removePiece(msg.data.id);
-                break;                                                   
+                break; 
+            case "roll_dice":
+                this.getRoom().rollDice(this.player, msg.data.num, msg.data.sides);
+                break;
             default:
                 console.log("User sent unknown message type: " + msg.type);
                 break;
@@ -110,6 +108,9 @@ class TTUser  {
     sendPieceClasses(class_data) {
         this.sendMessage('piece_classes', class_data);
     }
+    sendLog(log) {
+        this.sendMessage('log_data', log);
+    }
     auth(data) {
         let player = this.server.getPlayerByID(data.token);
         if (player == null) {
@@ -129,6 +130,7 @@ class TTUser  {
         this.server.sendMapToUsers(this.getRoom().map);
         this.sendPieceClasses(this.getRoom().getPieceClassData());
         this.sendPieceData(this.getRoom().getPieceData());    
+        this.sendLog(this.getRoom().getLog());
     }
 }
 

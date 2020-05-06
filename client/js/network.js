@@ -39,6 +39,9 @@ class Network {
                 console.log("Pieces updated");
                 this.tabletop.board.setPieceState(msg.data);
                 break;   
+            case "log_data":
+                this.tabletop.log.setLog(msg.data);
+                break;                   
             case "piece_classes":
                 this.tabletop.board.setPieceClasses(msg.data);
                 this.tabletop.gameUI.populatePieceMenus(msg.data);
@@ -103,6 +106,12 @@ class Network {
             id: id,
             x: x,
             y: y
+        });
+    }
+    sendRollDice(num, sides) {
+        this.sendMessage('roll_dice', {
+            num: num,
+            sides: sides
         });
     }
 }

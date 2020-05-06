@@ -11,10 +11,15 @@ class TTRoom {
     constructor(server) {
         this.map = new TTMap();
         this.pieces = [];
+        this.piece_classes = [];        
+        this.log = [];
+
         this.pieces_dirty = false;
         this.piece_classes_dirty = false;
+        this.log_dirty = false;
+
         this.server = server;
-        this.piece_classes = [];
+
         for (let i=0; i<GAME_PIECES.length; i++) {
             let c = new TTPieceClass(GAME_PIECES[i]);
             this.piece_classes.push(c);
@@ -193,6 +198,24 @@ class TTRoom {
         }
         this.pieces.splice(idx, 1);
         this.piecesDirty();
+    }
+    addLog(line) {
+        this.log.push(line);
+        while (this.log.length > 10) {
+            this.log.splice(0, 1);
+        }
+        this.log_dirty = true;
+    }
+    getLog() {
+        return this.log;
+    }
+    rollDice(player, num, sides) {
+        let result = 0;
+        for (let i=0; i<num; i++) {
+            result += Math.ceil(Math.random() * sides);
+        }
+
+        this.addLog(player.name + " wirft " + num + "w" + sides + "... " + result + "!");
     }
 }
 
