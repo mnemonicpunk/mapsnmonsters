@@ -1,41 +1,26 @@
 class GamePiece {
-    constructor(name, icon, type) {
-        this.game_icon = new GameIcon(type, 0);
-        this.updateMeta(name, icon, type);
-
-        this.x = 50;
-        this.y = 16;
+    constructor(board, data) {
+        this.board = board;
+        this.game_icon = new GameIcon(data.type, 0);
+        this.update(data);
         
-        this.tween_x = 0;
-        this.tween_y = 0;
-
-        this.on_board = false;
+        this.tween_x = this.x*SUBTILE_WIDTH;
+        this.tween_y = this.y*SUBTILE_HEIGHT;
+    }
+    update(data) {
+        this.name = data.name;
+        this.class_name = data.class_name;
+        this.x = data.x;
+        this.y = data.y;
+        this.id = data.id;
+        let c = this.board.getPieceClass(this.class_name);
+        this.game_icon.update(c.type, c.icon);
     }
     place(x, y) {
         this.x = x;
         this.y = y;
-
-        if (!this.on_board) {
-            this.tween_x = 1920;
-            this.tween_y = 540;
-        }
-
-        this.on_board = true;
-    }
-    updateMeta(name, icon, type) {
-        this.name = name;
-        this.icon = icon;
-        this.type = type;
-        this.game_icon.update(type, icon);
-    }
-    remove() {
-        this.on_board = false;
     }
     draw(ctx, x, y) {
-        if (!this.on_board) {
-            return;
-        }
-
         let dx = this.tween_x - (this.x*SUBTILE_WIDTH);
         let dy = this.tween_y - (this.y*SUBTILE_WIDTH);
 

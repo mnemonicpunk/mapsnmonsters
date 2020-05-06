@@ -5,13 +5,16 @@ class GameBoard {
         this.tabletop = tabletop;
         this.tiles = [];
         this.pieces = [];
+        this.piece_classes = [];
 
-        // 0 = pointer
+        // 0 = select/move/remove piece
         // 1 = reveal/hide map
-        // 2 = manipulate pieces
-        this.user_mode = 0;
+        // 2 = place new pieces
+        this.interaction_mode = 0;
 
         this.selected_piece = 0;
+        this.selected_class = "";
+        this.marked_id = "";
 
         this.hovered_position = {
             x: 0,
@@ -32,29 +35,24 @@ class GameBoard {
             this.pieces[i].draw(ctx, x, y);
         }
 
-        if (this.user_mode == 1) {
+        if (this.interaction_mode == 0) {
+            this.drawTileCursor(ctx, x, y);
+            let p = this.getPieceByID(this.marked_id);
+            if (p != null) {
+                this.drawPieceSelector(ctx, x, y, p);
+            }
+        }
+
+        if (this.interaction_mode == 1) {
             // draw tile target rect
             let ht = this.getHoveredTile();
             ctx.strokeStyle = "#888";
             ctx.strokeRect(ht.x*SUBTILE_WIDTH*4 + x, ht.y*SUBTILE_HEIGHT*4 + y, SUBTILE_WIDTH*4, SUBTILE_HEIGHT*4);
         }
 
-        if (this.user_mode == 2) {
-            // draw small target rect
-            let hp = this.getHoveredPosition();
-            ctx.strokeStyle = "#fff";
-            ctx.strokeRect(hp.x*SUBTILE_WIDTH + x, hp.y*SUBTILE_HEIGHT + y, SUBTILE_WIDTH, SUBTILE_HEIGHT);
-
-            // draw the piece name if are above a piece
-            let p = this.getPieceAtPosition(hp.x, hp.y);
-            if (p != null) {
-                ctx.fillStyle = "#fff";
-                let size = ctx.measureText(p.name);
-                ctx.fillText(p.name, x + ((hp.x + 0.5) * SUBTILE_WIDTH) - size.width/2, y + hp.y*SUBTILE_HEIGHT - 5);
-            }
+        if (this.interaction_mode == 2) {
+            this.drawTileCursor(ctx, x, y);
         }
-
-        //ctx.fillText(hp.x + "/" + hp.y + " Type: " + this.getTile(ht.x, ht.y).type, 10, 10);
     }
     drawMap() {
         let ctx = this.cache.getContext('2d');
@@ -64,6 +62,28 @@ class GameBoard {
             let ty = Math.floor(i/MAP_WIDTH);
             this.tiles[i].draw(ctx, tx*SUBTILE_WIDTH*4, ty*SUBTILE_HEIGHT*4);
         }        
+    }
+    drawPieceSelector(ctx, x, y, piece) {
+        ctx.strokeStyle = "#e2b007";
+        ctx.strokeRect(piece.tween_x + x, piece.tween_y + y, SUBTILE_WIDTH, SUBTILE_HEIGHT);
+
+        ctx.fillStyle = "#e2b007";
+        let size = ctx.measureText(piece.name);
+        ctx.fillText(piece.name, x + piece.tween_x + (SUBTILE_WIDTH/2) - size.width/2, y + piece.tween_y - 5);
+    }
+    drawTileCursor(ctx, x, y) {
+        // draw small target rect
+        let hp = this.getHoveredPosition();
+        ctx.strokeStyle = "#fff";
+        ctx.strokeRect(hp.x*SUBTILE_WIDTH + x, hp.y*SUBTILE_HEIGHT + y, SUBTILE_WIDTH, SUBTILE_HEIGHT);
+
+        // draw the piece name if are above a piece
+        let p = this.getPieceAtPosition(hp.x, hp.y);
+        if (p != null) {
+            ctx.fillStyle = "#fff";
+            let size = ctx.measureText(p.name);
+            ctx.fillText(p.name, x + ((hp.x + 0.5) * SUBTILE_WIDTH) - size.width/2, y + hp.y*SUBTILE_HEIGHT - 5);
+        }
     }
     setupMap(map_data) {
         for (var i=0; i<map_data.length; i++) {
@@ -85,24 +105,47 @@ class GameBoard {
         this.drawMap();
     }
     setPieceState(piece_data) {
+
+        // first find and delete all pieces that are not in the update
+        let delete_list = [];
         for (let i=0; i<this.pieces.length; i++) {
-            if (piece_data[i].on_board == true) {
-                this.pieces[i].place(piece_data[i].x, piece_data[i].y);
+            let present = false;
+            for (let j=0; j<piece_data.length; j++) { 
+                if (this.pieces[i].id == piece_data[j].id) {
+                    present = true;
+                }
+            }
+            if (!present) {
+                delete_list.push(this.pieces[i]);
+            }
+        }
+
+        for (let i=0; i<delete_list.length; i++) {
+            this.pieces.splice(this.getPieceNumber(delete_list[i]));
+        }
+
+        // then update or create new pieces
+        for (let i=0; i<piece_data.length; i++) {
+            let p = this.getPieceByID(piece_data[i].id);
+            if (p == null) {
+                p = new GamePiece(this, piece_data[i]);
+                this.pieces.push(p);
             } else {
-                this.pieces[i].remove();
+                p.update(piece_data[i]);
             }
         }
     }
-    setPieceMeta(piece_data) {
-        for (let i=0; i<piece_data.length; i++) {
-            if (this.pieces.length <= i) {
-                let p = new GamePiece(piece_data[i].name, piece_data[i].icon, piece_data[i].type);
-                this.pieces.push(p);
-            } else {
-                this.pieces[i].updateMeta(piece_data[i].name, piece_data[i].icon, piece_data[i].type);
+    setPieceClasses(class_data) {
+        this.piece_classes = class_data;
+    }
+    getPieceClass(class_name) {
+        for (let i=0; i<this.piece_classes.length; i++) {
+            if (this.piece_classes[i].name == class_name) {
+                return this.piece_classes[i];
             }
         }
-    }    
+        return null;
+    }
     mouseMove(x, y) {
         this.hovered_position = {
             x: Math.floor(x/SUBTILE_WIDTH),
@@ -123,7 +166,26 @@ class GameBoard {
     }
     mouseClick(button, x, y) {
         this.mouseMove(x, y);
-        if (this.user_mode == 1) {
+        if (this.interaction_mode == 0) {
+            let hp = this.getHoveredPosition();
+            let p = this.getPieceAtPosition(hp.x, hp.y);
+
+            if (button == 0) {
+                if (p != null) {
+                    this.marked_id = p.id;
+                } else {
+                    if (this.getPieceByID(this.marked_id) != null) {
+                        this.tabletop.network.sendMovePiece(this.marked_id, hp.x, hp.y);
+                    }
+                }
+            }
+            if (button == 2) {
+                if (p != null) {
+                    this.tabletop.network.sendRemovePiece(p.id);
+                }
+            }            
+        }
+        if (this.interaction_mode == 1) {
             let ht = this.getHoveredTile();
             let t = this.getTile(ht.x, ht.y);
             //t.visible = !t.visible;
@@ -139,18 +201,20 @@ class GameBoard {
 
             this.drawMap();
         }
-        if (this.user_mode == 2) {
+        if (this.interaction_mode == 2) {
             let hp = this.getHoveredPosition();
-            let p = this.pieces[this.selected_piece];
+            //let p = this.pieces[this.selected_piece];
             
             if (button == 0) {
-                //p.place(ht.x, ht.y);
-                this.tabletop.network.sendPlacePiece(hp.x, hp.y, this.selected_piece);
-            }
-            if (button == 2) {
-                //p.remove();
-                this.tabletop.network.sendRemovePiece(this.selected_piece);
-            }            
+                if (this.getPieceAtPosition(hp.x, hp.y) == null) {
+                    if (this.selected_class != "") {
+                        this.tabletop.network.sendCreatePiece(hp.x, hp.y, this.selected_class);
+                    } else {
+                        console.log("Can not create piece without classname");
+                    }
+                    
+                }
+            }       
         }
     }
     getHoveredTile() {
@@ -192,6 +256,10 @@ class GameBoard {
             }
         }
     }
+    selectPieceClass(name) {
+        console.log("Selecting " + name + " as next piece");
+        this.selected_class = name;
+    }
     getPieceByType(type, num) {
         let count = 0;
         for(let i=0; i<this.pieces.length; i++) {
@@ -202,7 +270,15 @@ class GameBoard {
                 count++;
             }
         }
-    }    
+    }
+    getPieceByID(id) {
+        for(let i=0; i<this.pieces.length; i++) {
+            if (this.pieces[i].id == id) {
+                return this.pieces[i];
+            }
+        }
+        return null;
+    }
     getPieceAtPosition(x, y) {
         for (let i=0; i<this.pieces.length; i++) {
             if ((this.pieces[i].x == x) && (this.pieces[i].y == y)) {

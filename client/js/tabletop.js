@@ -94,22 +94,22 @@ class TableTop {
         this.gameUI.panel_other.active = false;
 
         if (this.ui_mode == 0) {
-            this.board.user_mode = 0;
+            this.board.interaction_mode = 0;
         }
         if (this.ui_mode == 1) {
-            this.board.user_mode = 1;
+            this.board.interaction_mode = 1;
         }
         if (this.ui_mode == 2) {
             this.gameUI.panel_hero.active = true;
-            this.board.user_mode = 2;
+            this.board.interaction_mode = 2;
         }
         if (this.ui_mode == 3) {
             this.gameUI.panel_enemy.active = true;
-            this.board.user_mode = 2;
+            this.board.interaction_mode = 2;
         }        
         if (this.ui_mode == 4) {
-            this.gameUI.panel_token.active = true;
-            this.board.user_mode = 2;
+            this.gameUI.panel_other.active = true;
+            this.board.interaction_mode = 2;
         }        
     }
     resize() {

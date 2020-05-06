@@ -30,45 +30,55 @@ var GAME_PIECES = [
         type: "hero"
     },           
     {
-        name: "Gegner1",
+        name: "Gegner",
         icon: 16,
         type: "enemy"
     },
     {
-        name: "Gegner2",
-        icon: 16,
+        name: "Skeleton",
+        icon: 19,
+        type: "enemy"
+    },    
+    {
+        name: "Blazing Skeleton",
+        icon: 5,
+        type: "enemy"
+    },    
+    {
+        name: "Spider",
+        icon: 9,
+        type: "enemy"
+    },    
+    {
+        name: "Rat Swarm",
+        icon: 6,
         type: "enemy"
     },
     {
-        name: "Gegner3",
-        icon: 16,
+        name: "Wolf",
+        icon: 11,
         type: "enemy"
-    },
+    },    
     {
-        name: "Gegner4",
-        icon: 16,
+        name: "Wraith",
+        icon: 23,
         type: "enemy"
-    },
+    },    
     {
-        name: "Gegner5",
-        icon: 16,
+        name: "Kobold Skirmisher",
+        icon: 25,
         type: "enemy"
-    },
+    },    
     {
-        name: "Gegner6",
-        icon: 16,
+        name: "Gargoyle",
+        icon: 26,
         type: "enemy"
-    },
+    },    
     {
-        name: "Gegner7",
-        icon: 16,
+        name: "Zombie",
+        icon: 21,
         type: "enemy"
-    },
-    {
-        name: "Gegner8",
-        icon: 16,
-        type: "enemy"
-    }    
+    }
 ];
 
 module.exports = GAME_PIECES;

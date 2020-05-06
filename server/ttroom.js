@@ -1,5 +1,6 @@
 var TTMap = require('./ttmap.js');
 var TTPiece = require('./ttpiece.js');
+var TTPieceClass = require('./ttpiece_class.js');
 
 const FIELD_COMPONENTS_NUM = 24;
 
@@ -11,14 +12,17 @@ class TTRoom {
         this.map = new TTMap();
         this.pieces = [];
         this.pieces_dirty = false;
-        this.pieces_meta_dirty = false;
         this.server = server;
+        this.piece_classes = [];
+        for (let i=0; i<GAME_PIECES.length; i++) {
+            let c = new TTPieceClass(GAME_PIECES[i]);
+            this.piece_classes.push(c);
+        }
 
         this.map.loadMapFile(GAME_MAP);
-        for (let i=0; i<GAME_PIECES.length; i++) {
-            let p = new TTPiece(GAME_PIECES[i].name, GAME_PIECES[i].icon, GAME_PIECES[i].type);
-            this.pieces.push(p);
-        }
+        /*for (let i=0; i<this.piece_classes.length; i++) {
+            this.createPiece(this.piece_classes[i].name);
+        }*/
     }
     reveal(x, y, state) {
         let t = this.map.getTile(x, y);
@@ -26,16 +30,6 @@ class TTRoom {
             this.map.dirty();
         }
         t.visible = state;
-    }
-    getPiecesMeta() {
-        let pieces = this.pieces;
-
-        let json = [];
-        for (let i=0; i<pieces.length; i++) {
-            json.push(this.pieces[i].getMeta());
-        }
-
-        return json;
     }
     placePiece(x, y, num) {
         this.pieces[num].place(x, y);
@@ -48,10 +42,7 @@ class TTRoom {
     }
     piecesDirty() {
         this.pieces_dirty = true;
-    }
-    piecesMetaDirty() {
-        this.pieces_meta_dirty = true;
-    }    
+    }  
     clearBoard() {
         for (let i=0; i<this.pieces.length; i++) {
             this.pieces[i].on_board = false;
@@ -87,7 +78,88 @@ class TTRoom {
         this.unclaimPieces(player);
         this.pieces[num].claim(player);
         this.piecesMetaDirty();
-    }    
+    }
+    getPieceByID(id) {
+        for (let i=0; i<this.pieces.length; i++) {
+            if (this.pieces[i].id == id) {
+                return this.pieces[i];
+            }
+        }
+        return null;
+    }
+    getPieceClassByName(name) {
+        for (let i=0; i<this.piece_classes.length; i++) {
+            if (this.piece_classes[i].name == name) {
+                return this.piece_classes[i];
+            }
+        }
+        return null;
+    }
+    getPieceClassData() {
+        let data = [];
+        for (let i=0; i<this.piece_classes.length; i++) {
+            data.push(this.piece_classes[i].getData());
+        }
+        return data;
+    }
+    createPiece(class_name) {
+        let class_data = this.getPieceClassByName(class_name);
+        let p = new TTPiece(class_data.name, class_name);
+
+        let valid = false;
+        while(!valid) {
+            valid = true;
+            let id = this.server.makeID(8);
+            if (this.getPieceByID(id) != null) {
+                valid = false;
+            } else {
+                p.id = id;
+            }
+        }
+        this.pieces.push(p);
+        return p;
+    }
+    createPieceAt(x, y, class_name) {
+        console.log("Looking up class: "+ class_name);
+        let c = this.getPieceClassByName(class_name);
+
+        // hero type pieces can only exist once
+        if (c.type == "hero") {
+            let idx = -1;
+            for (let i=0; i<this.pieces.length; i++) {
+                if (this.pieces[i].class_name == class_name) {
+                    // it already exists, move it instead of creating a new one
+                    this.movePiece(this.pieces[i].id, x, y);
+                    return;
+                }
+            }
+        }
+
+        let p = this.createPiece(class_name);
+        p.x = x;
+        p.y = y;
+        this.piecesDirty();
+    }
+    movePiece(id, x, y) {
+        let p = this.getPieceByID(id);
+        if (p == null) {
+            return;
+        }
+        p.x = x;
+        p.y = y;
+        this.piecesDirty();
+    }
+    removePiece(id) {
+        let p = this.getPieceByID(id);
+        let idx = -1;
+        for (let i=0; i<this.pieces.length; i++) {
+            if (p == this.pieces[i]) {
+                idx = i;
+            }
+        }
+        this.pieces.splice(idx, 1);
+        this.piecesDirty();
+    }
 }
 
 module.exports = TTRoom;

@@ -12,7 +12,7 @@ class TTUser  {
         // mode -1 = spectator
         // mode 0 = DM
         // mode 1 = player
-        this.mode = -1;
+        this.mode = 0;
         this.player = null;
 
         this.sock.on('message', function(msg) {
@@ -72,7 +72,20 @@ class TTUser  {
             case "claim_piece":
                 this.getRoom().claimPiece(msg.data.num, this.player);
                 this.server.updateDirty();
-                break;                                
+                break;     
+            case "create_piece":
+                console.dir(msg);
+                this.getRoom().createPieceAt(msg.data.x, msg.data.y, msg.data.class_name);
+                this.server.updateDirty();
+                break;                                            
+            case "move_piece":
+                this.getRoom().movePiece(msg.data.id, msg.data.x, msg.data.y);
+                this.server.updateDirty();
+                break;  
+            case "remove_piece":
+                this.getRoom().removePiece(msg.data.id);
+                this.server.updateDirty();
+                break;                                                   
             default:
                 console.log("User sent unknown message type: " + msg.type);
                 break;
@@ -97,7 +110,13 @@ class TTUser  {
     }
     getRoom() {
         return this.server.room;
-    }    
+    }
+    sendPieceData(piece_data) {
+        this.sendMessage('piece_data', piece_data);
+    }
+    sendPieceClasses(class_data) {
+        this.sendMessage('piece_classes', class_data);
+    }
     auth(data) {
         let player = this.server.getPlayerByID(data.token);
         if (player == null) {
@@ -112,12 +131,10 @@ class TTUser  {
 
         this.mode = 0;
 
-        let m = this.getRoom().getPiecesMeta();
-
         // TO-DO: Make neat!
         this.server.sendMapToUsers(this.getRoom().map);
-        this.sendMessage('piece_meta', this.getRoom().getPiecesMeta());
-        this.server.sendPieceDataToUsers(this.getRoom().pieces);
+        this.sendPieceClasses(this.getRoom().getPieceClassData());
+        this.server.sendPieceDataToUsers(this.getRoom().pieces);    
     }
 }
 

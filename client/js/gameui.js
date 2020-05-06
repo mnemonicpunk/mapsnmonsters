@@ -72,16 +72,18 @@ class wPiecePanel extends mnWidget {
         super(x, y, width, height);
 
         this.selected = 0;
+        this.selected_class = "";
         this.select_callback = null;
         this.context_callback = null;
     }
-    addPiece(name, icon_type, icon_num) {
+    addPieceClass(name, alias, icon_type, icon_num) {
         var _Instance = this;
         var index = this.children.length;
 
-        let t = new wPiecePanelItem(0, this.children.length*68, this.width, 68, name, new GameIcon(icon_type, icon_num));
+        let t = new wPiecePanelItem(0, this.children.length*68, this.width, 68, alias, new GameIcon(icon_type, icon_num));
         t.click_callback = function(button) {
             if (button == 0) {
+                _Instance.selected_class = name;
                 _Instance.select(index);
             }
             if (button == 2) {
@@ -105,6 +107,9 @@ class wPiecePanel extends mnWidget {
         this.selected = num;
         for (let i=0; i<this.children.length; i++) {
             this.children[i].selected = (i == num);
+        }
+        if (this.selected == -1) {
+            this.selected_class = "";
         }
         if ((this.selected != -1) && (this.select_callback!= null)) {
             this.select_callback(this.selected);
@@ -303,7 +308,7 @@ class GameUI extends mnUI {
         let _Instance = this;
 
         this.toolbar = new wToolbar(10, 10, this.width-20, 40);
-        this.toolbar.addItem("Zeiger", function() {
+        this.toolbar.addItem("Brett", function() {
             _Instance.tabletop.setUIMode(0);
         });
         this.toolbar.addItem("Karte", function() {
@@ -323,7 +328,7 @@ class GameUI extends mnUI {
         this.panel_hero = new wPiecePanel(this.width - 420, 40, 400, 400);
         this.panel_hero.active = false;
         this.panel_hero.select_callback = function(num) {
-            _Instance.tabletop.board.selectPieceByType("hero", num);
+            _Instance.tabletop.board.selectPieceClass(_Instance.panel_hero.selected_class);
             _Instance.panel_enemy.select(-1);
             _Instance.panel_other.select(-1);
         }
@@ -334,7 +339,7 @@ class GameUI extends mnUI {
         this.panel_enemy = new wPiecePanel(this.width - 420, 40, 400, 400);
         this.panel_enemy.active = false;
         this.panel_enemy.select_callback = function(num) {
-            _Instance.tabletop.board.selectPieceByType("enemy", num);
+            _Instance.tabletop.board.selectPieceClass(_Instance.panel_enemy.selected_class);
             _Instance.panel_hero.select(-1);
             _Instance.panel_other.select(-1);
         }
@@ -345,7 +350,7 @@ class GameUI extends mnUI {
         this.panel_other = new wPiecePanel(this.width - 420, 40, 400, 400);
         this.panel_other.active = false;
         this.panel_other.select_callback = function(num) {
-            _Instance.tabletop.board.selectPieceByType("other", num);
+            _Instance.tabletop.board.selectPieceClass(_Instance.panel_other.selected_class);
             _Instance.panel_hero.select(-1);
             _Instance.panel_enemy.select(-1);
         }
@@ -376,6 +381,7 @@ class GameUI extends mnUI {
         this.edit_piece_window.resize((this.width/2) - 200, (this.height/2)-200, 400, 400);
     }
     populatePieceMenus(piece_data) {
+        console.dir(piece_data);
         this.panel_hero.clearPieces();
         this.panel_enemy.clearPieces();
         this.panel_other.clearPieces();
@@ -384,13 +390,13 @@ class GameUI extends mnUI {
         for (let i=0; i<piece_data.length; i++) {
             let p = piece_data[i];
             if (p.type == "hero") {
-                this.panel_hero.addPiece(p.name, p.type, p.icon);
+                this.panel_hero.addPieceClass(p.name, p.alias, p.type, p.icon);
             }
             if (p.type == "enemy") {
-                this.panel_enemy.addPiece(p.name, p.type, p.icon);
+                this.panel_enemy.addPieceClass(p.name, p.alias, p.type, p.icon);
             }            
             if (p.type == "other") {
-                this.panel_other.addPiece(p.name, p.type, p.icon);
+                this.panel_other.addPieceClass(p.name, p.alias, p.type, p.icon);
             }            
         }
     }

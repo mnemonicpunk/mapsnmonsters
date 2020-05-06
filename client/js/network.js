@@ -37,11 +37,18 @@ class Network {
             case "piece_data":
                 this.tabletop.board.setPieceState(msg.data);
                 break;   
-            case "piece_meta":
-                console.log("meta update!");
-                this.tabletop.board.setPieceMeta(msg.data);
+            case "piece_classes":
+                console.log("class update!");
+                console.dir(msg.data);
+                this.tabletop.board.setPieceClasses(msg.data);
                 this.tabletop.gameUI.populatePieceMenus(msg.data);
-                break;                  
+                break;                    
+            /*case "piece_meta":
+                console.log("meta update!");
+                console.dir(msg.data);
+                this.tabletop.board.setPieceMeta(msg.data);
+                //this.tabletop.gameUI.populatePieceMenus(msg.data);
+                break;                */
             default:
                 console.log("Unknown message type " + msg.type);
                 break;
@@ -91,6 +98,20 @@ class Network {
         let num = this.tabletop.board.getPieceNumber(piece);
         this.sendMessage('claim_piece', {
             num: num
+        });
+    }
+    sendCreatePiece(x, y, class_name) {
+        this.sendMessage('create_piece', {
+            class_name: class_name,
+            x: x,
+            y: y
+        });
+    }
+    sendMovePiece(id, x, y) {
+        this.sendMessage('move_piece', {
+            id: id,
+            x: x,
+            y: y
         });
     }
 }

@@ -62,13 +62,12 @@ class TTServer {
             json.push({
                 x: pieces[i].x,
                 y: pieces[i].y,
-                on_board: pieces[i].on_board
+                id: pieces[i].id,
+                name: pieces[i].name,
+                class_name: pieces[i].class_name
             });
         }
         this.sendMessageToUsers('piece_data', json);
-    }
-    sendPieceMetaToUsers() {
-        this.sendMessageToUsers('piece_meta', this.room.getPiecesMeta());
     }
     pruneUsers() {
         let is_clean = false;
@@ -93,10 +92,10 @@ class TTServer {
             this.sendPieceDataToUsers(this.room.pieces);
             this.room.pieces_dirty = false;
         }    
-        if (this.room.pieces_meta_dirty) {
-            this.sendPieceMetaToUsers(this.room.pieces);
-            this.room.pieces_meta_dirty = false;
-        }    
+        /*if (this.room.piece_classes_dirty) {
+            this.sendPieceClassesToUsers(this.room.pieces);
+            this.room.pieces_dirty = false;
+        }*/
     }
 }
 
