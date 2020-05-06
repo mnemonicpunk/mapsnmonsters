@@ -38,17 +38,9 @@ class Network {
                 this.tabletop.board.setPieceState(msg.data);
                 break;   
             case "piece_classes":
-                console.log("class update!");
-                console.dir(msg.data);
                 this.tabletop.board.setPieceClasses(msg.data);
                 this.tabletop.gameUI.populatePieceMenus(msg.data);
                 break;                    
-            /*case "piece_meta":
-                console.log("meta update!");
-                console.dir(msg.data);
-                this.tabletop.board.setPieceMeta(msg.data);
-                //this.tabletop.gameUI.populatePieceMenus(msg.data);
-                break;                */
             default:
                 console.log("Unknown message type " + msg.type);
                 break;
@@ -85,19 +77,16 @@ class Network {
     sendMap(map_data) {
         this.sendMessage('load_map', map_data);
     }
-    sendPieceEdit(piece) {
-        let num = this.tabletop.board.getPieceNumber(piece)
-        this.sendMessage('edit_piece', {
-            num: num,
-            type: piece.type,
-            icon: piece.icon,
-            name: piece.name
+    sendPieceClassEdit(piece_class) {
+        console.dir(piece_class);
+        this.sendMessage('edit_piece_class', {
+            icon: piece_class.icon,
+            name: piece_class.name
         });
     }
-    sendPieceClaim(piece) {
-        let num = this.tabletop.board.getPieceNumber(piece);
-        this.sendMessage('claim_piece', {
-            num: num
+    sendPieceClassClaim(piece_class) {
+        this.sendMessage('claim_piece_class', {
+            name: piece_class.name
         });
     }
     sendCreatePiece(x, y, class_name) {

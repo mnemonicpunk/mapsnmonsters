@@ -87,6 +87,7 @@ class wPiecePanel extends mnWidget {
                 _Instance.select(index);
             }
             if (button == 2) {
+                _Instance.selected_class = name;
                 if (_Instance.context_callback != null) {
                     _Instance.context_callback(index);
                 }
@@ -328,23 +329,31 @@ class GameUI extends mnUI {
         this.panel_hero = new wPiecePanel(this.width - 420, 40, 400, 400);
         this.panel_hero.active = false;
         this.panel_hero.select_callback = function(num) {
-            _Instance.tabletop.board.selectPieceClass(_Instance.panel_hero.selected_class);
+            if (num != -1) {
+                _Instance.tabletop.board.selectPieceClass(_Instance.panel_hero.selected_class);
+            }
             _Instance.panel_enemy.select(-1);
             _Instance.panel_other.select(-1);
         }
         this.panel_hero.context_callback = function(num) {
-            _Instance.edit_piece_window.beginEdit(_Instance.tabletop.board.getPieceByType("hero", num));
+            _Instance.panel_hero.select(num);
+            _Instance.tabletop.board.selectPieceClass(_Instance.panel_hero.selected_class);
+            _Instance.edit_piece_window.beginEdit(_Instance.tabletop.board.getPieceClass(_Instance.panel_hero.selected_class));
         }
 
         this.panel_enemy = new wPiecePanel(this.width - 420, 40, 400, 400);
         this.panel_enemy.active = false;
         this.panel_enemy.select_callback = function(num) {
-            _Instance.tabletop.board.selectPieceClass(_Instance.panel_enemy.selected_class);
+            if (num != -1) {
+                _Instance.tabletop.board.selectPieceClass(_Instance.panel_enemy.selected_class);
+            }
             _Instance.panel_hero.select(-1);
             _Instance.panel_other.select(-1);
         }
         this.panel_enemy.context_callback = function(num) {
-            _Instance.edit_piece_window.beginEdit(_Instance.tabletop.board.getPieceByType("enemy", num));
+            _Instance.panel_enemy.select(num);
+            _Instance.tabletop.board.selectPieceClass(_Instance.panel_enemy.selected_class);
+            _Instance.edit_piece_window.beginEdit(_Instance.tabletop.board.getPieceClass(_Instance.panel_enemy.selected_class));
         }
 
         this.panel_other = new wPiecePanel(this.width - 420, 40, 400, 400);
@@ -358,10 +367,10 @@ class GameUI extends mnUI {
         this.edit_piece_window = new wEditPiece(0, 0, 400, 400);
         this.edit_piece_window.active = false;
         this.edit_piece_window.confirm_callback = function(piece) {
-            _Instance.tabletop.network.sendPieceEdit(piece);
+            _Instance.tabletop.network.sendPieceClassEdit(piece);
         }
         this.edit_piece_window.claim_callback = function(piece) {
-            _Instance.tabletop.network.sendPieceClaim(piece);
+            _Instance.tabletop.network.sendPieceClassClaim(piece);
         }
 
         this.children.push(this.toolbar);

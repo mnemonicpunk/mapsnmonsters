@@ -47,49 +47,40 @@ class TTUser  {
                 break;
             case "reveal":
                 this.getRoom().reveal(msg.data.x, msg.data.y, msg.data.state);
-                this.server.updateDirty();
+                
                 break;
             case "place_piece":
                 this.getRoom().placePiece(msg.data.x, msg.data.y, msg.data.num);
-                this.server.updateDirty();
                 break;
             case "remove_piece":
                 this.getRoom().removePiece(msg.data.num);
-                this.server.updateDirty();
                 break;
             case "load_map":
                 this.getRoom().loadUserMap(msg.data);
-                this.server.updateDirty();
                 break;                              
-            case "edit_piece":
-                let p = this.getRoom().pieces[msg.data.num];
+            case "edit_piece_class":
+                let c = this.getRoom().getPieceClassByName(msg.data.name);
                 //p.name = msg.data.name;
-                p.type = msg.data.type;
-                p.icon = msg.data.icon;
-                this.getRoom().piecesMetaDirty();
-                this.server.updateDirty();
+                c.icon = msg.data.icon;
+                this.getRoom().pieceClassesDirty();
                 break;  
-            case "claim_piece":
-                this.getRoom().claimPiece(msg.data.num, this.player);
-                this.server.updateDirty();
+            case "claim_piece_class":
+                this.getRoom().claimPieceClass(msg.data.name, this.player);
                 break;     
             case "create_piece":
-                console.dir(msg);
                 this.getRoom().createPieceAt(msg.data.x, msg.data.y, msg.data.class_name);
-                this.server.updateDirty();
                 break;                                            
             case "move_piece":
                 this.getRoom().movePiece(msg.data.id, msg.data.x, msg.data.y);
-                this.server.updateDirty();
                 break;  
             case "remove_piece":
                 this.getRoom().removePiece(msg.data.id);
-                this.server.updateDirty();
                 break;                                                   
             default:
                 console.log("User sent unknown message type: " + msg.type);
                 break;
         }
+        this.server.updateDirty();
     }
     setMode(mode) {
         switch (mode) {

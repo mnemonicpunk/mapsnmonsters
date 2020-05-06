@@ -69,6 +69,11 @@ class TTServer {
         }
         this.sendMessageToUsers('piece_data', json);
     }
+    sendPieceClassesToUsers(piece_classes) {
+        for (let i=0; i<this.users.length; i++) {
+            this.users[i].sendPieceClasses(piece_classes);
+        }
+    }    
     pruneUsers() {
         let is_clean = false;
         while(!is_clean) {
@@ -92,10 +97,10 @@ class TTServer {
             this.sendPieceDataToUsers(this.room.pieces);
             this.room.pieces_dirty = false;
         }    
-        /*if (this.room.piece_classes_dirty) {
-            this.sendPieceClassesToUsers(this.room.pieces);
-            this.room.pieces_dirty = false;
-        }*/
+        if (this.room.piece_classes_dirty) {
+            this.sendPieceClassesToUsers(this.room.getPieceClassData());
+            this.room.piece_classes_dirty = false;
+        }
     }
 }
 

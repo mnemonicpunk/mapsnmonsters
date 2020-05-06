@@ -12,6 +12,7 @@ class TTRoom {
         this.map = new TTMap();
         this.pieces = [];
         this.pieces_dirty = false;
+        this.piece_classes_dirty = false;
         this.server = server;
         this.piece_classes = [];
         for (let i=0; i<GAME_PIECES.length; i++) {
@@ -40,13 +41,37 @@ class TTRoom {
         this.pieces[num].remove();
         this.piecesDirty();
     }
+    updatePieceNames() {
+        for (let i=0; i<this.pieces.length; i++) {
+            let p = this.pieces[i];
+            let c = this.getPieceClassByName(p.class_name);
+            p.name = c.alias;
+            let inum = this.getPieceInstanceNumber(p);
+            if (inum > 0) {
+                p.name += " " + (inum+1);
+            }
+        }
+    }
+    getPieceInstanceNumber(piece) {
+        let count = 0;
+        for (let i=0; i<this.pieces.length; i++) {
+            if (this.pieces[i].class_name == piece.class_name) {
+                if (this.pieces[i] == piece) {
+                    return count;
+                }
+                count++;
+            }
+        }
+    }
     piecesDirty() {
         this.pieces_dirty = true;
+        this.updatePieceNames();
     }  
+    pieceClassesDirty() {
+        this.piece_classes_dirty = true;
+    }     
     clearBoard() {
-        for (let i=0; i<this.pieces.length; i++) {
-            this.pieces[i].on_board = false;
-        }
+        this.pieces = [];
         this.piecesDirty();
     }
     loadUserMap(data) {
@@ -68,16 +93,19 @@ class TTRoom {
         this.clearBoard();
         this.server.updateDirty();
     }
-    unclaimPieces(player) {
-        for (let i=0; i < this.pieces.length; i++) {
-            this.pieces[i].unclaim(player);
+    unclaimPieceClasses(player) {
+        for (let i=0; i < this.piece_classes.length; i++) {
+            this.piece_classes[i].unclaim(player);
         }
-        this.piecesMetaDirty();
+        this.piecesDirty();
+        this.pieceClassesDirty();
     }
-    claimPiece(num, player) {
-        this.unclaimPieces(player);
-        this.pieces[num].claim(player);
-        this.piecesMetaDirty();
+    claimPieceClass(name, player) {
+        this.unclaimPieceClasses(player);
+        let c = this.getPieceClassByName(name);
+        c.claim(player);
+        this.piecesDirty();
+        this.pieceClassesDirty();
     }
     getPieceByID(id) {
         for (let i=0; i<this.pieces.length; i++) {
@@ -120,7 +148,6 @@ class TTRoom {
         return p;
     }
     createPieceAt(x, y, class_name) {
-        console.log("Looking up class: "+ class_name);
         let c = this.getPieceClassByName(class_name);
 
         // hero type pieces can only exist once

@@ -13,6 +13,9 @@ class GamePiece {
         this.x = data.x;
         this.y = data.y;
         this.id = data.id;
+        this.updateIcon();
+    }
+    updateIcon() {
         let c = this.board.getPieceClass(this.class_name);
         this.game_icon.update(c.type, c.icon);
     }

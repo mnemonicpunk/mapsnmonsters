@@ -137,6 +137,9 @@ class GameBoard {
     }
     setPieceClasses(class_data) {
         this.piece_classes = class_data;
+        for (let i=0; i<this.pieces.length; i++) {
+            this.pieces[i].updateIcon();
+        }
     }
     getPieceClass(class_name) {
         for (let i=0; i<this.piece_classes.length; i++) {
@@ -257,7 +260,6 @@ class GameBoard {
         }
     }
     selectPieceClass(name) {
-        console.log("Selecting " + name + " as next piece");
         this.selected_class = name;
     }
     getPieceByType(type, num) {
