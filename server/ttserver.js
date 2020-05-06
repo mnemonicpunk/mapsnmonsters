@@ -7,6 +7,15 @@ class TTServer {
         this.users = [];
         this.room = new TTRoom(this);
         this.players = [];
+
+        let _Instance = this;
+        let _tick = function() {
+            _Instance.tick();
+            setTimeout(_tick, 1000);
+        }
+    }
+    tick() {
+        this.pruneUsers();
     }
     connectUser(ws) {
         let u = new TTUser(this, ws);
@@ -53,21 +62,14 @@ class TTServer {
         }
     }
     sendMapToUsers(map) {
-        let json = map.getJSON();
-        this.sendMessageToUsers('map_data', json);
-    }
-    sendPieceDataToUsers(pieces) {
-        let json = [];
-        for (let i=0; i<pieces.length; i++) {
-            json.push({
-                x: pieces[i].x,
-                y: pieces[i].y,
-                id: pieces[i].id,
-                name: pieces[i].name,
-                class_name: pieces[i].class_name
-            });
+        for (let i=0; i<this.users.length; i++) {
+            this.users[i].sendMap(map);
         }
-        this.sendMessageToUsers('piece_data', json);
+    }
+    sendPieceDataToUsers(piece_data) {
+        for (let i=0; i<this.users.length; i++) {
+            this.users[i].sendPieceData(piece_data);
+        }
     }
     sendPieceClassesToUsers(piece_classes) {
         for (let i=0; i<this.users.length; i++) {
@@ -80,7 +82,7 @@ class TTServer {
             is_clean = true;
             for (let i=0; i<this.users.length; i++) {
                 if (this.users[i].connected == false) {
-                    this.users.splice(i);
+                    this.users.splice(i, 1);
                     is_clean = false;
                     break;
                 }
@@ -94,7 +96,7 @@ class TTServer {
             this.room.map.is_dirty = false;
         }
         if (this.room.pieces_dirty) {
-            this.sendPieceDataToUsers(this.room.pieces);
+            this.sendPieceDataToUsers(this.room.getPieceData());
             this.room.pieces_dirty = false;
         }    
         if (this.room.piece_classes_dirty) {

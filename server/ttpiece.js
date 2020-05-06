@@ -11,6 +11,15 @@ class TTPiece {
         this.x = x;
         this.y = y;
     }
+    getData() {
+        return {
+            x: this.x,
+            y: this.y,
+            name: this.name,
+            class_name: this.class_name,
+            id: this.id
+        };
+    }
 }
 
 module.exports = TTPiece;

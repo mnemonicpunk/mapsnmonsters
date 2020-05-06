@@ -4,7 +4,6 @@ class TTUser  {
     constructor(server, ws) {
         var _Instance = this;
 
-        console.log("User connected.");
         this.server = server;
         this.sock = ws;
         this.connected = true;
@@ -102,6 +101,9 @@ class TTUser  {
     getRoom() {
         return this.server.room;
     }
+    sendMap(map) {
+        this.sendMessage('map_data', map.getJSON());
+    }
     sendPieceData(piece_data) {
         this.sendMessage('piece_data', piece_data);
     }
@@ -113,7 +115,8 @@ class TTUser  {
         if (player == null) {
             player = this.server.createPlayer();
             player.name = data.name;
-        }
+        } 
+
         this.player = player;
         this.sendMessage('auth_success', {
             name: player.name,
@@ -125,7 +128,7 @@ class TTUser  {
         // TO-DO: Make neat!
         this.server.sendMapToUsers(this.getRoom().map);
         this.sendPieceClasses(this.getRoom().getPieceClassData());
-        this.server.sendPieceDataToUsers(this.getRoom().pieces);    
+        this.sendPieceData(this.getRoom().getPieceData());    
     }
 }
 

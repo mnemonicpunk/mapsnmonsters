@@ -123,6 +123,13 @@ class TTRoom {
         }
         return null;
     }
+    getPieceData() {
+        let data = [];
+        for (let i=0; i<this.pieces.length; i++) {
+            data.push(this.pieces[i].getData());
+        }
+        return data;
+    }
     getPieceClassData() {
         let data = [];
         for (let i=0; i<this.piece_classes.length; i++) {

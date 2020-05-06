@@ -29,12 +29,14 @@ class Network {
         let msg = JSON.parse(json);
         switch (msg.type) {
             case "auth_success": 
+                console.log("Authenticated!");
                 this.tabletop.setCredentials(msg.data);
                 break;
             case "map_data":
                 this.tabletop.board.setMapState(msg.data);
                 break;
             case "piece_data":
+                console.log("Pieces updated");
                 this.tabletop.board.setPieceState(msg.data);
                 break;   
             case "piece_classes":
