@@ -74,9 +74,9 @@ class Network {
             num: num
         });
     }    
-    sendRemovePiece(num) {
+    sendRemovePiece(id) {
         this.sendMessage('remove_piece', {
-            num: num
+            id: id
         });
     }
     sendMap(map_data) {

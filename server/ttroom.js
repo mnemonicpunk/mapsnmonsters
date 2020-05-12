@@ -196,8 +196,13 @@ class TTRoom {
                 idx = i;
             }
         }
-        this.pieces.splice(idx, 1);
-        this.piecesDirty();
+        if (idx != -1) {
+            this.pieces.splice(idx, 1);
+            this.piecesDirty();
+        } else {
+            console.log("Attempted to remove non-existant piece " + id);
+        }
+        
     }
     addLog(line) {
         this.log.push(line);
